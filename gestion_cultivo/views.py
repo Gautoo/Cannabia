@@ -1,12 +1,13 @@
 # gestion_cultivo/views.py
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import login
 from django.contrib import messages
+from django.urls import reverse
+from django.http import HttpResponseRedirect
 
-from .forms import SalaForm
-from .forms import RegistroUsuarioForm # Importa el formulario de registro
-from .models import Sala # Importa el modelo Sala
+from .forms import SalaForm, RegistroUsuarioForm
+from .models import Sala, AreaCultivo, Planta
 
 def pagina_inicio_cultivo(request):
     return render(request, 'gestion_cultivo/inicio_cultivo.html')
@@ -35,28 +36,75 @@ def registro_usuario(request):
         form = RegistroUsuarioForm()
     return render(request, 'gestion_cultivo/registro_usuario.html', {'form': form})
 
-@login_required # Solo usuarios logueados pueden crear salas
+@login_required
 def crear_sala(request):
     if request.method == 'POST':
-        # Si el formulario se ha enviado (es una petición POST)
-        form = SalaForm(request.POST) # Crea una instancia del formulario con los datos enviados
-        if form.is_valid(): # Verifica si los datos son válidos
-            sala = form.save(commit=False) # No guardes el objeto Sala en la BD todavía
-            sala.usuario = request.user # Asigna el usuario actual a la sala
-            sala.save() # Ahora sí, guarda la sala en la BD
+        form = SalaForm(request.POST)
+        if form.is_valid():
+            sala = form.save(commit=False)
+            sala.usuario = request.user
+            sala.save()
             messages.success(request, f"La sala '{sala.nombre}' ha sido creada exitosamente.")
-            return redirect('gestion_cultivo:lista_salas') # Redirige a la lista de salas
+            return redirect('gestion_cultivo:lista_salas')
         else:
-            # Si el formulario no es válido, se mostrarán los errores en la plantilla.
             messages.error(request, "Por favor, corrige los errores en el formulario.")
     else:
-        # Si es una petición GET (el usuario acaba de llegar a la página),
-        # crea una instancia vacía del formulario.
         form = SalaForm()
 
-    # Pasa el formulario y un título de 'acción' a la plantilla
     context = {
         'form': form,
-        'accion': 'Crear Nueva' # Para usar en el título y botón de la plantilla
+        'accion': 'Crear Nueva'
     }
     return render(request, 'gestion_cultivo/crear_editar_sala.html', context)
+
+@login_required
+def detalle_sala(request, sala_id):
+    # Obtiene la sala específica o devuelve un 404 si no existe
+    sala = get_object_or_404(Sala, id=sala_id, usuario=request.user)
+    # Obtiene todas las áreas de cultivo asociadas a esta sala
+    areas = sala.areas.all().order_by('nombre')
+    
+    context = {
+        'sala': sala,
+        'areas': areas
+    }
+    return render(request, 'gestion_cultivo/detalle_sala.html', context)
+
+@login_required
+def editar_sala(request, sala_id):
+    # Obtiene la sala a editar (solo si pertenece al usuario actual)
+    sala = get_object_or_404(Sala, id=sala_id, usuario=request.user)
+    
+    if request.method == 'POST':
+        form = SalaForm(request.POST, instance=sala)  # Crea un formulario con los datos existentes
+        if form.is_valid():
+            form.save()  # Guarda los cambios
+            messages.success(request, f"La sala '{sala.nombre}' ha sido actualizada exitosamente.")
+            return redirect('gestion_cultivo:detalle_sala', sala_id=sala.id)
+        else:
+            messages.error(request, "Por favor, corrige los errores en el formulario.")
+    else:
+        form = SalaForm(instance=sala)  # Crea un formulario prellenado con los datos de la sala
+    
+    context = {
+        'form': form,
+        'accion': 'Editar',
+        'sala': sala
+    }
+    return render(request, 'gestion_cultivo/crear_editar_sala.html', context)
+
+@login_required
+def eliminar_sala(request, sala_id):
+    # Obtiene la sala a eliminar (solo si pertenece al usuario actual)
+    sala = get_object_or_404(Sala, id=sala_id, usuario=request.user)
+    
+    if request.method == 'POST':
+        nombre_sala = sala.nombre
+        sala.delete()
+        messages.success(request, f"La sala '{nombre_sala}' ha sido eliminada exitosamente.")
+        return redirect('gestion_cultivo:lista_salas')
+    
+    context = {
+        'sala': sala
+    }
+    return render(request, 'gestion_cultivo/confirmar_eliminar.html', context)

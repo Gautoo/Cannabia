@@ -1,0 +1,27 @@
+{% extends "gestion_cultivo/base.html" %}
+
+{% block title %}Eliminar {{ sala.nombre }}{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <h2 class="card-title text-center mb-4">Confirmar Eliminación</h2>
+                <div class="alert alert-danger">
+                    <p>¿Estás seguro de que deseas eliminar la sala <strong>{{ sala.nombre }}</strong>?</p>
+                    <p><strong>¡Advertencia!</strong> Esta acción no se puede deshacer y también eliminará todas las áreas de cultivo y plantas asociadas a esta sala.</p>
+                </div>
+                
+                <form method="post" novalidate>
+                    {% csrf_token %}
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
+                        <a href="{% url 'gestion_cultivo:detalle_sala' sala.id %}" class="btn btn-secondary me-md-2">Cancelar</a>
+                        <button type="submit" class="btn btn-danger">Eliminar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
