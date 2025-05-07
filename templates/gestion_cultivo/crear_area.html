@@ -1,0 +1,150 @@
+{% extends "gestion_cultivo/base.html" %}
+
+{% block title %}Crear Nueva Área - {{ sala.nombre }}{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'gestion_cultivo:lista_salas' %}">Mis Salas</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'gestion_cultivo:detalle_sala' sala.id %}">{{ sala.nombre }}</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Crear Nueva Área</li>
+        </ol>
+    </nav>
+
+    <div class="card">
+        <div class="card-header">
+            <h5 class="card-title mb-0">Crear Nueva Área</h5>
+        </div>
+        <div class="card-body">
+            <form method="post">
+                {% csrf_token %}
+                
+                {% if form.non_field_errors %}
+                <div class="alert alert-danger">
+                    {% for error in form.non_field_errors %}
+                        {{ error }}
+                    {% endfor %}
+                </div>
+                {% endif %}
+
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="{{ form.nombre.id_for_label }}" class="form-label">Nombre del Área</label>
+                            {{ form.nombre }}
+                            {% if form.nombre.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ form.nombre.errors }}
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="{{ form.tipo_cultivo.id_for_label }}" class="form-label">Tipo de Cultivo</label>
+                            {{ form.tipo_cultivo }}
+                            {% if form.tipo_cultivo.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ form.tipo_cultivo.errors }}
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="col-12">
+                        <div class="form-check">
+                            {{ form.tiene_riego_automatico }}
+                            <label class="form-check-label" for="{{ form.tiene_riego_automatico.id_for_label }}">
+                                ¿Tiene Riego Automático?
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label for="{{ form.altura.id_for_label }}" class="form-label">Altura (metros)</label>
+                            {{ form.altura }}
+                            {% if form.altura.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ form.altura.errors }}
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label for="{{ form.largo.id_for_label }}" class="form-label">Largo (metros)</label>
+                            {{ form.largo }}
+                            {% if form.largo.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ form.largo.errors }}
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label for="{{ form.ancho.id_for_label }}" class="form-label">Ancho (metros)</label>
+                            {{ form.ancho }}
+                            {% if form.ancho.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ form.ancho.errors }}
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-4 d-flex gap-2">
+                    <a href="{% url 'gestion_cultivo:detalle_sala' sala.id %}" class="btn btn-secondary">Cancelar</a>
+                    <button type="submit" class="btn btn-primary">Crear Área</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const tipoCultivoSelect = document.getElementById('{{ form.tipo_cultivo.id_for_label }}');
+    const sustratoGroup = document.getElementById('{{ form.sustrato.id_for_label }}').closest('.form-group');
+    const composicionSustratoGroup = document.getElementById('{{ form.composicion_sustrato.id_for_label }}').closest('.form-group');
+    const macetaGroup = document.getElementById('{{ form.tamano_maceta.id_for_label }}').closest('.form-group');
+    const baldeGroup = document.getElementById('{{ form.tamano_balde.id_for_label }}').closest('.form-group');
+
+    function updateFields() {
+        const tipoCultivo = tipoCultivoSelect.value;
+        const sustrato = document.getElementById('{{ form.sustrato.id_for_label }}').value;
+        
+        // Mostrar/ocultar campos según el tipo de cultivo
+        if (tipoCultivo === 'hidroponico') {
+            sustratoGroup.style.display = 'none';
+            composicionSustratoGroup.style.display = 'none';
+            macetaGroup.style.display = 'none';
+            baldeGroup.style.display = 'block';
+        } else {
+            sustratoGroup.style.display = 'block';
+            macetaGroup.style.display = 'block';
+            baldeGroup.style.display = 'none';
+            
+            // Mostrar/ocultar composición del sustrato
+            if (sustrato === 'personalizado') {
+                composicionSustratoGroup.style.display = 'block';
+            } else {
+                composicionSustratoGroup.style.display = 'none';
+            }
+        }
+    }
+
+    tipoCultivoSelect.addEventListener('change', updateFields);
+    document.getElementById('{{ form.sustrato.id_for_label }}').addEventListener('change', updateFields);
+    updateFields(); // Ejecutar al cargar la página
+});
+</script>
+{% endblock %}
+{% endblock %} 

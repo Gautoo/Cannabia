@@ -1,0 +1,50 @@
+{% extends 'gestion_cultivo/base.html' %}
+
+{% block title %}Lista de Genéticas{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3 mb-0">Lista de Genéticas</h1>
+        <a href="{% url 'gestion_cultivo:crear_genetica' %}" class="btn btn-primary">
+            <i class="fas fa-plus"></i> Nueva Genética
+        </a>
+    </div>
+
+    {% if geneticas %}
+        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+            {% for genetica in geneticas %}
+                <div class="col">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ genetica.nombre }}</h5>
+                            <p class="card-text text-muted">{{ genetica.descripcion|truncatewords:20 }}</p>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    {% if genetica.thc_estimado %}
+                                        <span class="badge bg-info">THC: {{ genetica.thc_estimado }}%</span>
+                                    {% endif %}
+                                    {% if genetica.cbd_estimado %}
+                                        <span class="badge bg-success">CBD: {{ genetica.cbd_estimado }}%</span>
+                                    {% endif %}
+                                </div>
+                                <a href="{% url 'gestion_cultivo:detalle_genetica' genetica.id %}" class="btn btn-sm btn-outline-primary">
+                                    Ver Detalles
+                                </a>
+                            </div>
+                        </div>
+                        <div class="card-footer text-muted">
+                            <small>Creada: {{ genetica.fecha_creacion|date:"d/m/Y" }}</small>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="alert alert-info">
+            <i class="fas fa-info-circle"></i> No hay genéticas registradas. 
+            <a href="{% url 'gestion_cultivo:crear_genetica' %}" class="alert-link">Crear una nueva genética</a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %} 

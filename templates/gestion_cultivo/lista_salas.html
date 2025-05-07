@@ -1,0 +1,52 @@
+{% extends 'gestion_cultivo/base.html' %}
+
+{% block title %}Mis Salas{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="mb-0">Mis Salas</h2>
+        <a href="{% url 'gestion_cultivo:crear_sala' %}" class="btn btn-success">
+            <i class="fas fa-plus"></i> Crear Nueva Sala
+        </a>
+    </div>
+
+    {% if salas %}
+        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+            {% for sala in salas %}
+                <div class="col">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ sala.nombre }}</h5>
+                            <p class="card-text text-muted">{{ sala.descripcion|truncatewords:20|default:"Sin descripción" }}</p>
+                            <div class="mb-2">
+                                <span class="badge bg-primary">{{ sala.get_tipo_display }}</span>
+                            </div>
+                            <div class="small text-muted mb-2">
+                                <strong>Dimensiones:</strong><br>
+                                Altura: {{ sala.altura }}m<br>
+                                Largo: {{ sala.largo }}m<br>
+                                Ancho: {{ sala.ancho }}m
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <small class="text-muted">Áreas: {{ sala.areacultivo_set.count }}</small>
+                                <a href="{% url 'gestion_cultivo:detalle_sala' sala.id %}" class="btn btn-sm btn-outline-primary">
+                                    Ver Detalles
+                                </a>
+                            </div>
+                        </div>
+                        <div class="card-footer text-muted">
+                            <small>Creada: {{ sala.fecha_creacion|date:"d/m/Y" }}</small>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="alert alert-info">
+            <i class="fas fa-info-circle"></i> No tienes salas registradas. 
+            <a href="{% url 'gestion_cultivo:crear_sala' %}" class="alert-link">Crear una nueva sala</a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %} 

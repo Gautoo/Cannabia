@@ -1,0 +1,110 @@
+{% extends "gestion_cultivo/base.html" %}
+
+{% block title %}Detalle de Planta - {{ planta.nombre_id }}{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'gestion_cultivo:lista_salas' %}">Mis Salas</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'gestion_cultivo:detalle_sala' planta.area.sala.id %}">{{ planta.area.sala.nombre }}</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'gestion_cultivo:detalle_area' planta.area.id %}">{{ planta.area.nombre }}</a></li>
+            <li class="breadcrumb-item active">{{ planta.nombre_id }}</li>
+        </ol>
+    </nav>
+
+    <div class="card mb-4">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h2 class="h4 mb-0">{{ planta.nombre_id }}</h2>
+            <div class="btn-group">
+                <a href="{% url 'gestion_cultivo:editar_planta' planta.id %}" class="btn btn-outline-primary">
+                    <i class="fas fa-edit"></i> Editar
+                </a>
+                <a href="{% url 'gestion_cultivo:eliminar_planta' planta.id %}" class="btn btn-outline-danger">
+                    <i class="fas fa-trash"></i> Eliminar
+                </a>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <h3 class="h5 mb-3">Información General</h3>
+                    <dl class="row">
+                        <dt class="col-sm-4">Nombre/ID:</dt>
+                        <dd class="col-sm-8">{{ planta.nombre_id }}</dd>
+
+                        <dt class="col-sm-4">Genética:</dt>
+                        <dd class="col-sm-8">
+                            {% if planta.genetica %}
+                                <a href="{% url 'gestion_cultivo:detalle_genetica' planta.genetica.id %}">
+                                    {{ planta.genetica.nombre }}
+                                </a>
+                            {% else %}
+                                No especificada
+                            {% endif %}
+                        </dd>
+
+                        <dt class="col-sm-4">Etapa Actual:</dt>
+                        <dd class="col-sm-8">{{ planta.get_etapa_actual_display }}</dd>
+
+                        <dt class="col-sm-4">Estado:</dt>
+                        <dd class="col-sm-8">
+                            {% if planta.activa %}
+                                <span class="badge bg-success">Activa</span>
+                            {% else %}
+                                <span class="badge bg-danger">Inactiva</span>
+                            {% endif %}
+                        </dd>
+
+                        <dt class="col-sm-4">Fecha de Germinación:</dt>
+                        <dd class="col-sm-8">
+                            {% if planta.fecha_germinacion %}
+                                {{ planta.fecha_germinacion|date:"d/m/Y" }}
+                            {% else %}
+                                No especificada
+                            {% endif %}
+                        </dd>
+
+                        <dt class="col-sm-4">Área:</dt>
+                        <dd class="col-sm-8">
+                            <a href="{% url 'gestion_cultivo:detalle_area' planta.area.id %}">
+                                {{ planta.area.nombre }}
+                            </a>
+                        </dd>
+
+                        <dt class="col-sm-4">Sala:</dt>
+                        <dd class="col-sm-8">
+                            <a href="{% url 'gestion_cultivo:detalle_sala' planta.area.sala.id %}">
+                                {{ planta.area.sala.nombre }}
+                            </a>
+                        </dd>
+                    </dl>
+                </div>
+
+                <div class="col-md-6">
+                    <h3 class="h5 mb-3">Valores Estimados</h3>
+                    <dl class="row">
+                        <dt class="col-sm-4">THC Estimado:</dt>
+                        <dd class="col-sm-8">
+                            {% if planta.thc_estimado %}
+                                {{ planta.thc_estimado }}%
+                            {% else %}
+                                No especificado
+                            {% endif %}
+                        </dd>
+
+                        <dt class="col-sm-4">CBD Estimado:</dt>
+                        <dd class="col-sm-8">
+                            {% if planta.cbd_estimado %}
+                                {{ planta.cbd_estimado }}%
+                            {% else %}
+                                No especificado
+                            {% endif %}
+                        </dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 
