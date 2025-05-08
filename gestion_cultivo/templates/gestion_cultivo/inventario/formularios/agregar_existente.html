@@ -1,0 +1,221 @@
+{% extends 'gestion_cultivo/base.html' %}
+{% load static %}
+
+{% block title %}Agregar Producto Existente - Mi Cultivo App{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3 mb-0">Agregar Producto Existente</h1>
+        <a href="{% url 'gestion_cultivo:inventario' %}" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left"></i> Volver al Inventario
+        </a>
+    </div>
+
+    <div class="row">
+        <!-- Semillas -->
+        <div class="col-md-6 col-lg-4 mb-4">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <i class="fas fa-seedling text-success"></i> Semillas
+                    </h5>
+                    {% if semillas %}
+                    <form method="post" action="{% url 'gestion_cultivo:agregar_cantidad_semilla' %}">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label for="semilla" class="form-label">Seleccionar Semilla</label>
+                            <select class="form-select" id="semilla" name="semilla" required>
+                                <option value="">Selecciona una semilla...</option>
+                                {% for semilla in semillas %}
+                                <option value="{{ semilla.id }}">{{ semilla.nombre }} ({{ semilla.banco.nombre }})</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="cantidad" class="form-label">Cantidad a Agregar</label>
+                            <input type="number" class="form-control" id="cantidad" name="cantidad" min="1" required>
+                        </div>
+                        <button type="submit" class="btn btn-outline-success">
+                            <i class="fas fa-plus"></i> Agregar Cantidad
+                        </button>
+                    </form>
+                    {% else %}
+                    <p class="text-muted mb-0">No hay semillas registradas en el inventario.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Lámparas -->
+        <div class="col-md-6 col-lg-4 mb-4">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <i class="fas fa-lightbulb text-warning"></i> Lámparas
+                    </h5>
+                    {% if lamparas %}
+                    <form method="post" action="{% url 'gestion_cultivo:agregar_cantidad_lampara' %}">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label for="lampara" class="form-label">Seleccionar Lámpara</label>
+                            <select class="form-select" id="lampara" name="lampara" required>
+                                <option value="">Selecciona una lámpara...</option>
+                                {% for lampara in lamparas %}
+                                <option value="{{ lampara.id }}">{{ lampara.nombre }} ({{ lampara.potencia }}W)</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="cantidad" class="form-label">Cantidad a Agregar</label>
+                            <input type="number" class="form-control" id="cantidad" name="cantidad" min="1" required>
+                        </div>
+                        <button type="submit" class="btn btn-outline-warning">
+                            <i class="fas fa-plus"></i> Agregar Cantidad
+                        </button>
+                    </form>
+                    {% else %}
+                    <p class="text-muted mb-0">No hay lámparas registradas en el inventario.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Macetas -->
+        <div class="col-md-6 col-lg-4 mb-4">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <i class="fas fa-flower text-info"></i> Macetas
+                    </h5>
+                    {% if macetas %}
+                    <form method="post" action="{% url 'gestion_cultivo:agregar_cantidad_maceta' %}">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label for="maceta" class="form-label">Seleccionar Maceta</label>
+                            <select class="form-select" id="maceta" name="maceta" required>
+                                <option value="">Selecciona una maceta...</option>
+                                {% for maceta in macetas %}
+                                <option value="{{ maceta.id }}">{{ maceta.nombre }} ({{ maceta.capacidad }}L)</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="cantidad" class="form-label">Cantidad a Agregar</label>
+                            <input type="number" class="form-control" id="cantidad" name="cantidad" min="1" required>
+                        </div>
+                        <button type="submit" class="btn btn-outline-info">
+                            <i class="fas fa-plus"></i> Agregar Cantidad
+                        </button>
+                    </form>
+                    {% else %}
+                    <p class="text-muted mb-0">No hay macetas registradas en el inventario.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Fertilizantes -->
+        <div class="col-md-6 col-lg-4 mb-4">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <i class="fas fa-flask text-primary"></i> Fertilizantes
+                    </h5>
+                    {% if fertilizantes %}
+                    <form method="post" action="{% url 'gestion_cultivo:agregar_cantidad_fertilizante' %}">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label for="fertilizante" class="form-label">Seleccionar Fertilizante</label>
+                            <select class="form-select" id="fertilizante" name="fertilizante" required>
+                                <option value="">Selecciona un fertilizante...</option>
+                                {% for fertilizante in fertilizantes %}
+                                <option value="{{ fertilizante.id }}">{{ fertilizante.nombre }} ({{ fertilizante.marca }})</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="cantidad" class="form-label">Cantidad a Agregar</label>
+                            <input type="number" class="form-control" id="cantidad" name="cantidad" min="1" required>
+                        </div>
+                        <button type="submit" class="btn btn-outline-primary">
+                            <i class="fas fa-plus"></i> Agregar Cantidad
+                        </button>
+                    </form>
+                    {% else %}
+                    <p class="text-muted mb-0">No hay fertilizantes registrados en el inventario.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Aditivos -->
+        <div class="col-md-6 col-lg-4 mb-4">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <i class="fas fa-vial text-secondary"></i> Aditivos
+                    </h5>
+                    {% if aditivos %}
+                    <form method="post" action="{% url 'gestion_cultivo:agregar_cantidad_aditivo' %}">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label for="aditivo" class="form-label">Seleccionar Aditivo</label>
+                            <select class="form-select" id="aditivo" name="aditivo" required>
+                                <option value="">Selecciona un aditivo...</option>
+                                {% for aditivo in aditivos %}
+                                <option value="{{ aditivo.id }}">{{ aditivo.nombre }} ({{ aditivo.marca }})</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="cantidad" class="form-label">Cantidad a Agregar</label>
+                            <input type="number" class="form-control" id="cantidad" name="cantidad" min="1" required>
+                        </div>
+                        <button type="submit" class="btn btn-outline-secondary">
+                            <i class="fas fa-plus"></i> Agregar Cantidad
+                        </button>
+                    </form>
+                    {% else %}
+                    <p class="text-muted mb-0">No hay aditivos registrados en el inventario.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Bases -->
+        <div class="col-md-6 col-lg-4 mb-4">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <i class="fas fa-layer-group text-dark"></i> Bases
+                    </h5>
+                    {% if bases %}
+                    <form method="post" action="{% url 'gestion_cultivo:agregar_cantidad_base' %}">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label for="base" class="form-label">Seleccionar Base</label>
+                            <select class="form-select" id="base" name="base" required>
+                                <option value="">Selecciona una base...</option>
+                                {% for base in bases %}
+                                <option value="{{ base.id }}">{{ base.nombre }} ({{ base.marca }})</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="cantidad" class="form-label">Cantidad a Agregar</label>
+                            <input type="number" class="form-control" id="cantidad" name="cantidad" min="1" required>
+                        </div>
+                        <button type="submit" class="btn btn-outline-dark">
+                            <i class="fas fa-plus"></i> Agregar Cantidad
+                        </button>
+                    </form>
+                    {% else %}
+                    <p class="text-muted mb-0">No hay bases registradas en el inventario.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

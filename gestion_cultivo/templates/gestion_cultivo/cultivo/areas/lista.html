@@ -1,0 +1,72 @@
+{% extends 'gestion_cultivo/base.html' %}
+
+{% block title %}Áreas de Cultivo - Mi Cultivo App{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row mb-4">
+        <div class="col">
+            <h1 class="display-4">Áreas de Cultivo</h1>
+            <p class="lead">Gestiona tus áreas de cultivo</p>
+        </div>
+        <div class="col-auto">
+            <a href="{% url 'gestion_cultivo:crear_area' %}" class="btn btn-primary">
+                <i class="fas fa-plus"></i> Nueva Área
+            </a>
+        </div>
+    </div>
+
+    <div class="row">
+        {% if areas %}
+            {% for area in areas %}
+                <div class="col-md-6 col-lg-4 mb-4">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ area.nombre }}</h5>
+                            <h6 class="card-subtitle mb-2 text-muted">{{ area.sala.nombre }}</h6>
+                            
+                            <dl class="row mb-0">
+                                <dt class="col-sm-4">Tipo</dt>
+                                <dd class="col-sm-8">{{ area.get_tipo_cultivo_display }}</dd>
+
+                                <dt class="col-sm-4">Estado</dt>
+                                <dd class="col-sm-8">{{ area.get_estado_display }}</dd>
+
+                                <dt class="col-sm-4">Dimensiones</dt>
+                                <dd class="col-sm-8">
+                                    {{ area.largo }}m x {{ area.ancho }}m x {{ area.altura }}m
+                                </dd>
+
+                                {% if area.sustrato %}
+                                <dt class="col-sm-4">Sustrato</dt>
+                                <dd class="col-sm-8">{{ area.sustrato }}</dd>
+                                {% endif %}
+                            </dl>
+                        </div>
+                        <div class="card-footer bg-transparent">
+                            <div class="btn-group w-100">
+                                <a href="{% url 'gestion_cultivo:detalle_area' area.id %}" class="btn btn-outline-primary">
+                                    <i class="fas fa-eye"></i> Ver Detalles
+                                </a>
+                                <a href="{% url 'gestion_cultivo:editar_area' area.id %}" class="btn btn-outline-secondary">
+                                    <i class="fas fa-edit"></i> Editar
+                                </a>
+                                <a href="{% url 'gestion_cultivo:eliminar_area' area.id %}" class="btn btn-outline-danger">
+                                    <i class="fas fa-trash"></i> Eliminar
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <div class="col">
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle"></i> No hay áreas de cultivo registradas.
+                    <a href="{% url 'gestion_cultivo:crear_area' %}" class="alert-link">Crear una nueva área</a>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %} 

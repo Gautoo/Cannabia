@@ -1,0 +1,123 @@
+{% extends 'gestion_cultivo/base.html' %}
+
+{% block title %}Crear Área de Cultivo - Mi Cultivo App{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Crear Área de Cultivo</h3>
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        {% if form.errors %}
+                            <div class="alert alert-danger">
+                                Por favor, corrija los errores a continuación.
+                            </div>
+                        {% endif %}
+                        
+                        <div class="form-group">
+                            <label for="{{ form.nombre.id_for_label }}">Nombre:</label>
+                            {{ form.nombre }}
+                            {% if form.nombre.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.nombre.errors }}
+                                </div>
+                            {% endif %}
+                            {% if form.nombre.help_text %}
+                                <small class="form-text text-muted">{{ form.nombre.help_text }}</small>
+                            {% endif %}
+                        </div>
+
+                        <div class="form-group">
+                            <label for="{{ form.tipo.id_for_label }}">Tipo:</label>
+                            {{ form.tipo }}
+                            {% if form.tipo.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.tipo.errors }}
+                                </div>
+                            {% endif %}
+                            {% if form.tipo.help_text %}
+                                <small class="form-text text-muted">{{ form.tipo.help_text }}</small>
+                            {% endif %}
+                        </div>
+
+                        <div class="form-group">
+                            <label for="{{ form.dimensiones.id_for_label }}">Dimensiones:</label>
+                            {{ form.dimensiones }}
+                            {% if form.dimensiones.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.dimensiones.errors }}
+                                </div>
+                            {% endif %}
+                            {% if form.dimensiones.help_text %}
+                                <small class="form-text text-muted">{{ form.dimensiones.help_text }}</small>
+                            {% endif %}
+                        </div>
+
+                        <div class="form-group">
+                            <label for="{{ form.capacidad.id_for_label }}">Capacidad:</label>
+                            {{ form.capacidad }}
+                            {% if form.capacidad.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.capacidad.errors }}
+                                </div>
+                            {% endif %}
+                            {% if form.capacidad.help_text %}
+                                <small class="form-text text-muted">{{ form.capacidad.help_text }}</small>
+                            {% endif %}
+                        </div>
+
+                        <div class="form-group">
+                            <label for="{{ form.condiciones.id_for_label }}">Condiciones:</label>
+                            {{ form.condiciones }}
+                            {% if form.condiciones.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.condiciones.errors }}
+                                </div>
+                            {% endif %}
+                            {% if form.condiciones.help_text %}
+                                <small class="form-text text-muted">{{ form.condiciones.help_text }}</small>
+                            {% endif %}
+                        </div>
+
+                        <div class="form-group">
+                            <label for="{{ form.estado.id_for_label }}">Estado:</label>
+                            {{ form.estado }}
+                            {% if form.estado.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.estado.errors }}
+                                </div>
+                            {% endif %}
+                            {% if form.estado.help_text %}
+                                <small class="form-text text-muted">{{ form.estado.help_text }}</small>
+                            {% endif %}
+                        </div>
+
+                        <div class="form-group">
+                            <label for="{{ form.notas.id_for_label }}">Notas:</label>
+                            {{ form.notas }}
+                            {% if form.notas.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.notas.errors }}
+                                </div>
+                            {% endif %}
+                            {% if form.notas.help_text %}
+                                <small class="form-text text-muted">{{ form.notas.help_text }}</small>
+                            {% endif %}
+                        </div>
+
+                        <div class="form-group">
+                            <button type="submit" class="btn btn-primary">Crear Área</button>
+                            <a href="{% url 'gestion_cultivo:detalle_sala' sala.pk %}" class="btn btn-secondary">Cancelar</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

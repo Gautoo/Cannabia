@@ -1,0 +1,29 @@
+{% extends 'gestion_cultivo/base.html' %}
+
+{% block title %}Eliminar {{ genetica.nombre }}{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-6 offset-md-3">
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="mb-0">Eliminar Genética</h2>
+                </div>
+                <div class="card-body">
+                    <p class="lead">¿Estás seguro de que deseas eliminar la genética "{{ genetica.nombre }}"?</p>
+                    <p>Esta acción no se puede deshacer.</p>
+
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-danger">Sí, Eliminar</button>
+                            <a href="{% url 'gestion_cultivo:detalle_genetica' genetica.id %}" class="btn btn-secondary">Cancelar</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

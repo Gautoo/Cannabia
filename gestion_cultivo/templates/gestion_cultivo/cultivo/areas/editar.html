@@ -1,0 +1,142 @@
+{% extends 'gestion_cultivo/base.html' %}
+
+{% block title %}Editar Área de Cultivo - Mi Cultivo App{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Editar Área de Cultivo</h3>
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        {% if form.errors %}
+                            <div class="alert alert-danger">
+                                Por favor, corrija los errores a continuación.
+                            </div>
+                        {% endif %}
+                        
+                        <div class="form-group mb-3">
+                            <label for="{{ form.nombre.id_for_label }}">Nombre:</label>
+                            {{ form.nombre }}
+                            {% if form.nombre.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.nombre.errors }}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <label for="{{ form.tipo_cultivo.id_for_label }}">Tipo de Cultivo:</label>
+                            {{ form.tipo_cultivo }}
+                            {% if form.tipo_cultivo.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.tipo_cultivo.errors }}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <label for="{{ form.estado.id_for_label }}">Estado:</label>
+                            {{ form.estado }}
+                            {% if form.estado.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.estado.errors }}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <label for="{{ form.tiene_riego_automatico.id_for_label }}">Riego Automático:</label>
+                            {{ form.tiene_riego_automatico }}
+                            {% if form.tiene_riego_automatico.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.tiene_riego_automatico.errors }}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <label for="{{ form.sustrato.id_for_label }}">Sustrato:</label>
+                            {{ form.sustrato }}
+                            {% if form.sustrato.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.sustrato.errors }}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <label for="{{ form.composicion_sustrato.id_for_label }}">Composición del Sustrato:</label>
+                            {{ form.composicion_sustrato }}
+                            {% if form.composicion_sustrato.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.composicion_sustrato.errors }}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <label for="{{ form.tamano_maceta.id_for_label }}">Tamaño de Maceta:</label>
+                            {{ form.tamano_maceta }}
+                            {% if form.tamano_maceta.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.tamano_maceta.errors }}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <label for="{{ form.tamano_balde.id_for_label }}">Tamaño de Balde:</label>
+                            {{ form.tamano_balde }}
+                            {% if form.tamano_balde.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.tamano_balde.errors }}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <label for="{{ form.altura.id_for_label }}">Altura (m):</label>
+                            {{ form.altura }}
+                            {% if form.altura.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.altura.errors }}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <label for="{{ form.largo.id_for_label }}">Largo (m):</label>
+                            {{ form.largo }}
+                            {% if form.largo.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.largo.errors }}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <label for="{{ form.ancho.id_for_label }}">Ancho (m):</label>
+                            {{ form.ancho }}
+                            {% if form.ancho.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.ancho.errors }}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="form-group">
+                            <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+                            <a href="{% url 'gestion_cultivo:detalle_sala' area.sala.pk %}" class="btn btn-secondary">Cancelar</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

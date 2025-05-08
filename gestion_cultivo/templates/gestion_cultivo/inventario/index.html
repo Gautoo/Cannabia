@@ -1,0 +1,198 @@
+{% extends 'gestion_cultivo/base.html' %}
+{% load static %}
+
+{% block title %}Inventario - Mi Cultivo App{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row mb-4">
+        <div class="col">
+            <h1 class="display-4">Inventario</h1>
+            <p class="lead">Gestiona tu inventario de cultivo</p>
+        </div>
+        <div class="col-auto">
+            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#agregarInventarioModal">
+                <i class="fas fa-plus"></i> Agregar al Inventario
+            </button>
+        </div>
+    </div>
+
+    <!-- Resumen de Inventario -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card bg-primary text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Semillas</h5>
+                    <p class="card-text display-4">{{ conteos.semillas }}</p>
+                    <a href="{% url 'gestion_cultivo:lista_semillas' %}" class="btn btn-light">Ver Semillas</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-success text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Fertilizantes</h5>
+                    <p class="card-text display-4">{{ conteos.fertilizantes }}</p>
+                    <a href="{% url 'gestion_cultivo:lista_fertilizantes' %}" class="btn btn-light">Ver Fertilizantes</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-info text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Lámparas</h5>
+                    <p class="card-text display-4">{{ conteos.lamparas }}</p>
+                    <a href="{% url 'gestion_cultivo:lista_lamparas' %}" class="btn btn-light">Ver Lámparas</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-warning text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Macetas</h5>
+                    <p class="card-text display-4">{{ conteos.macetas }}</p>
+                    <a href="{% url 'gestion_cultivo:lista_macetas' %}" class="btn btn-light">Ver Macetas</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Inventario Completo -->
+    <div class="row mb-4">
+        <div class="col">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Inventario Completo</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Tipo</th>
+                                    <th>Nombre</th>
+                                    <th>Marca</th>
+                                    <th>Cantidad</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for semilla in semillas %}
+                                <tr>
+                                    <td>Semilla</td>
+                                    <td>{{ semilla.nombre }}</td>
+                                    <td>{{ semilla.banco.nombre }}</td>
+                                    <td>{{ semilla.cantidad_disponible }}</td>
+                                    <td>
+                                        <a href="{% url 'gestion_cultivo:detalle_semilla' semilla.id %}" class="btn btn-sm btn-info">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                        <a href="{% url 'gestion_cultivo:editar_semilla' semilla.id %}" class="btn btn-sm btn-warning">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        <a href="{% url 'gestion_cultivo:eliminar_semilla' semilla.id %}" class="btn btn-sm btn-danger">
+                                            <i class="fas fa-trash"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                                {% for fertilizante in fertilizantes %}
+                                <tr>
+                                    <td>Fertilizante</td>
+                                    <td>{{ fertilizante.nombre }}</td>
+                                    <td>{{ fertilizante.marca }}</td>
+                                    <td>{{ fertilizante.cantidad_disponible }}</td>
+                                    <td>
+                                        <a href="{% url 'gestion_cultivo:detalle_fertilizante' fertilizante.id %}" class="btn btn-sm btn-info">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                        <a href="{% url 'gestion_cultivo:editar_fertilizante' fertilizante.id %}" class="btn btn-sm btn-warning">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        <a href="{% url 'gestion_cultivo:eliminar_fertilizante' fertilizante.id %}" class="btn btn-sm btn-danger">
+                                            <i class="fas fa-trash"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                                {% for lampara in lamparas %}
+                                <tr>
+                                    <td>Lámpara</td>
+                                    <td>{{ lampara.nombre }}</td>
+                                    <td>{{ lampara.marca }}</td>
+                                    <td>{{ lampara.cantidad_disponible }}</td>
+                                    <td>
+                                        <a href="{% url 'gestion_cultivo:detalle_lampara' lampara.id %}" class="btn btn-sm btn-info">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                        <a href="{% url 'gestion_cultivo:editar_lampara' lampara.id %}" class="btn btn-sm btn-warning">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        <a href="{% url 'gestion_cultivo:eliminar_lampara' lampara.id %}" class="btn btn-sm btn-danger">
+                                            <i class="fas fa-trash"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                                {% for maceta in macetas %}
+                                <tr>
+                                    <td>Maceta</td>
+                                    <td>{{ maceta.nombre }}</td>
+                                    <td>{{ maceta.marca }}</td>
+                                    <td>{{ maceta.cantidad_disponible }}</td>
+                                    <td>
+                                        <a href="{% url 'gestion_cultivo:detalle_maceta' maceta.id %}" class="btn btn-sm btn-info">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                        <a href="{% url 'gestion_cultivo:editar_maceta' maceta.id %}" class="btn btn-sm btn-warning">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        <a href="{% url 'gestion_cultivo:eliminar_maceta' maceta.id %}" class="btn btn-sm btn-danger">
+                                            <i class="fas fa-trash"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Agregar al Inventario -->
+<div class="modal fade" id="agregarInventarioModal" tabindex="-1" aria-labelledby="agregarInventarioModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="agregarInventarioModalLabel">Agregar al Inventario</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="list-group">
+                    <a href="{% url 'gestion_cultivo:crear_semilla' %}" class="list-group-item list-group-item-action">
+                        <i class="fas fa-seedling"></i> Nueva Semilla
+                    </a>
+                    <a href="{% url 'gestion_cultivo:crear_fertilizante' %}" class="list-group-item list-group-item-action">
+                        <i class="fas fa-flask"></i> Nuevo Fertilizante
+                    </a>
+                    <a href="{% url 'gestion_cultivo:crear_lampara' %}" class="list-group-item list-group-item-action">
+                        <i class="fas fa-lightbulb"></i> Nueva Lámpara
+                    </a>
+                    <a href="{% url 'gestion_cultivo:crear_maceta' %}" class="list-group-item list-group-item-action">
+                        <i class="fas fa-fill"></i> Nueva Maceta
+                    </a>
+                    <a href="{% url 'gestion_cultivo:crear_aditivo' %}" class="list-group-item list-group-item-action">
+                        <i class="fas fa-vial"></i> Nuevo Aditivo
+                    </a>
+                    <a href="{% url 'gestion_cultivo:crear_base' %}" class="list-group-item list-group-item-action">
+                        <i class="fas fa-layer-group"></i> Nueva Base
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

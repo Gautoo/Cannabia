@@ -3,155 +3,234 @@ from django.db import models
 from django.contrib.auth.models import User # Importa el modelo User de Django
 from django.urls import reverse
 from django.utils import timezone
+from django.core.validators import MinValueValidator, MaxValueValidator
 
 class Sala(models.Model):
-    TIPOS_SALA = [
-        ('vegetacion', 'Vegetación'),
-        ('floracion', 'Floración'),
-        ('mixta', 'Mixta'),
-        ('ciclo_completo', 'Ciclo Completo'),
-        ('otro', 'Otro'),
+    TIPO_ILUMINACION_CHOICES = [
+        ('LED', 'LED'),
+        ('HPS', 'HPS'),
+        ('CMH', 'CMH'),
+        ('LEC', 'LEC'),
+        ('FLUORESCENTE', 'Fluorescente'),
+        ('NATURAL', 'Natural'),
     ]
     
-    # Cada sala pertenece a un usuario específico. Si el usuario se borra, sus salas también (CASCADE).
-    usuario = models.ForeignKey(User, on_delete=models.CASCADE, related_name='salas')
+    usuario = models.ForeignKey(User, on_delete=models.CASCADE)
     nombre = models.CharField(max_length=100)
-    descripcion = models.TextField(blank=True, null=True) # blank=True (no requerido en forms), null=True (puede ser NULL en DB)
-    tipo = models.CharField(max_length=20, choices=TIPOS_SALA, default='mixta')
-    altura = models.DecimalField(max_digits=5, decimal_places=2, help_text='Altura en metros', default=0.00)
-    largo = models.DecimalField(max_digits=5, decimal_places=2, help_text='Largo en metros', default=0.00)
-    ancho = models.DecimalField(max_digits=5, decimal_places=2, help_text='Ancho en metros', default=0.00)
-    fecha_creacion = models.DateTimeField(default=timezone.now)
-
+    descripcion = models.TextField(blank=True, default='')
+    temperatura_objetivo = models.DecimalField(max_digits=4, decimal_places=1, validators=[MinValueValidator(0), MaxValueValidator(50)], null=True, blank=True)
+    humedad_objetivo = models.DecimalField(max_digits=4, decimal_places=1, validators=[MinValueValidator(0), MaxValueValidator(100)], null=True, blank=True)
+    tipo_iluminacion = models.CharField(max_length=20, choices=TIPO_ILUMINACION_CHOICES)
+    horas_luz = models.IntegerField(validators=[MinValueValidator(0), MaxValueValidator(24)])
+    fecha_creacion = models.DateTimeField(auto_now_add=True)
+    fecha_actualizacion = models.DateTimeField(auto_now=True)
+    
     def __str__(self):
-        # Texto que representa al objeto (útil en el admin)
         return self.nombre
-
+    
     def get_absolute_url(self):
         return reverse('gestion_cultivo:detalle_sala', args=[str(self.id)])
 
 class AreaCultivo(models.Model):
-    TIPOS_CULTIVO = [
-        ('suelo', 'Suelo'),
-        ('hidroponico', 'Hidropónico'),
-        ('living_soil', 'Living Soil'),
+    TIPO_CULTIVO_CHOICES = [
+        ('INDOOR', 'Indoor'),
+        ('OUTDOOR', 'Outdoor'),
+        ('GREENHOUSE', 'Greenhouse'),
     ]
 
-    TIPOS_SUSTRATO = [
-        ('tierra_100', '100% Tierra'),
-        ('coco_100', '100% Coco'),
-        ('tierra_coco_50_50', '50% Tierra - 50% Coco'),
-        ('tierra_hummus_50_50', '50% Tierra - 50% Hummus'),
-        ('tierra_perlita_70_30', '70% Tierra - 30% Perlita'),
-        ('coco_perlita_70_30', '70% Coco - 30% Perlita'),
-        ('personalizado', 'Personalizado'),
-    ]
-
-    TAMANOS_MACETA = [
-        ('1l', '1 Litro'),
-        ('3l', '3 Litros'),
-        ('5l', '5 Litros'),
-        ('7l', '7 Litros'),
-        ('10l', '10 Litros'),
-        ('15l', '15 Litros'),
-        ('20l', '20 Litros'),
-        ('otro', 'Otro'),
-    ]
-
-    TAMANOS_BALDE = [
-        ('5l', '5 Litros'),
-        ('10l', '10 Litros'),
-        ('15l', '15 Litros'),
-        ('20l', '20 Litros'),
-        ('otro', 'Otro'),
+    ESTADO_CHOICES = [
+        ('ACTIVO', 'Activo'),
+        ('INACTIVO', 'Inactivo'),
+        ('MANTENIMIENTO', 'En mantenimiento'),
     ]
 
     nombre = models.CharField(max_length=100)
-    sala = models.ForeignKey(Sala, on_delete=models.CASCADE, related_name='areas')
-    tipo_cultivo = models.CharField(max_length=20, choices=TIPOS_CULTIVO, default='suelo')
+    descripcion = models.TextField(blank=True, default='')
+    sala = models.ForeignKey(Sala, on_delete=models.CASCADE, null=True, blank=True)
+    tipo_cultivo = models.CharField(max_length=20, choices=TIPO_CULTIVO_CHOICES, default='INDOOR')
+    estado = models.CharField(max_length=20, choices=ESTADO_CHOICES, default='ACTIVO')
     tiene_riego_automatico = models.BooleanField(default=False)
-    sustrato = models.CharField(max_length=20, choices=TIPOS_SUSTRATO, null=True, blank=True)
-    composicion_sustrato = models.TextField(blank=True, null=True, help_text='Describe la composición personalizada del sustrato')
-    tamano_maceta = models.CharField(max_length=10, choices=TAMANOS_MACETA, null=True, blank=True)
-    tamano_balde = models.CharField(max_length=10, choices=TAMANOS_BALDE, null=True, blank=True)
-    altura = models.DecimalField(max_digits=5, decimal_places=2, help_text='Altura en metros', default=0.00)
-    largo = models.DecimalField(max_digits=5, decimal_places=2, help_text='Largo en metros', default=0.00)
-    ancho = models.DecimalField(max_digits=5, decimal_places=2, help_text='Ancho en metros', default=0.00)
+    sustrato = models.CharField(max_length=100, blank=True, default='')
+    composicion_sustrato = models.TextField(blank=True, default='')
+    tamano_maceta = models.CharField(max_length=50, blank=True, default='')
+    tamano_balde = models.CharField(max_length=50, blank=True, default='')
+    altura = models.DecimalField(max_digits=5, decimal_places=2, validators=[MinValueValidator(0)], default=0)
+    largo = models.DecimalField(max_digits=5, decimal_places=2, validators=[MinValueValidator(0)], default=0)
+    ancho = models.DecimalField(max_digits=5, decimal_places=2, validators=[MinValueValidator(0)], default=0)
     fecha_creacion = models.DateTimeField(default=timezone.now)
 
     def __str__(self):
-        return self.nombre
+        return f"{self.nombre} - {self.sala.nombre}"
 
     def get_absolute_url(self):
         return reverse('gestion_cultivo:detalle_area', args=[str(self.id)])
 
     def get_tipo_cultivo_display(self):
-        return dict(self.TIPOS_CULTIVO).get(self.tipo_cultivo, self.tipo_cultivo)
+        return dict(self.TIPO_CULTIVO_CHOICES).get(self.tipo_cultivo, self.tipo_cultivo)
 
     def get_sustrato_display(self):
-        return dict(self.TIPOS_SUSTRATO).get(self.sustrato, self.sustrato) if self.sustrato else None
+        return self.sustrato if self.sustrato else None
 
     def get_tamano_maceta_display(self):
-        return dict(self.TAMANOS_MACETA).get(self.tamano_maceta, self.tamano_maceta) if self.tamano_maceta else None
+        return self.tamano_maceta if self.tamano_maceta else None
 
     def get_tamano_balde_display(self):
-        return dict(self.TAMANOS_BALDE).get(self.tamano_balde, self.tamano_balde) if self.tamano_balde else None
+        return self.tamano_balde if self.tamano_balde else None
 
 class Genetica(models.Model):
-    nombre = models.CharField(max_length=100, unique=True)
-    descripcion = models.TextField(blank=True, null=True)
-    thc_estimado = models.FloatField(verbose_name="THC Estimado (%)", blank=True, null=True)
-    cbd_estimado = models.FloatField(verbose_name="CBD Estimado (%)", blank=True, null=True)
+    TIPO_CHOICES = [
+        ('INDICA', 'Indica'),
+        ('SATIVA', 'Sativa'),
+        ('HIBRIDO', 'Híbrido'),
+    ]
+    
+    nombre = models.CharField(max_length=100)
+    descripcion = models.TextField(blank=True, default='')
+    tipo = models.CharField(max_length=20, choices=TIPO_CHOICES, default='HIBRIDO')
+    tiempo_floracion = models.IntegerField(validators=[MinValueValidator(0)], default=60)
+    rendimiento = models.CharField(max_length=50, default='Medio')
+    thc_estimado = models.DecimalField(max_digits=4, decimal_places=2, validators=[MinValueValidator(0), MaxValueValidator(100)], default=0)
+    cbd_estimado = models.DecimalField(max_digits=4, decimal_places=2, validators=[MinValueValidator(0), MaxValueValidator(100)], default=0)
     fecha_creacion = models.DateTimeField(default=timezone.now)
 
     def __str__(self):
         return self.nombre
 
-class Semilla(models.Model):
+class Banco(models.Model):
     nombre = models.CharField(max_length=100)
-    descripcion = models.TextField(blank=True, null=True)
-    cantidad_disponible = models.PositiveIntegerField(default=0)
-    fecha_compra = models.DateField(null=True, blank=True)
-    fecha_creacion = models.DateTimeField(default=timezone.now)
+    descripcion = models.TextField(blank=True, default='')
+    fecha_creacion = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"{self.nombre} ({self.cantidad_disponible} disponibles)"
+        return self.nombre
 
-    def get_absolute_url(self):
-        return reverse('gestion_cultivo:detalle_semilla', args=[str(self.id)])
+class Terpeno(models.Model):
+    nombre = models.CharField(max_length=100)
+    descripcion = models.TextField(blank=True, default='')
 
-class Planta(models.Model):
-    TIPOS_PLANTA = [
+    def __str__(self):
+        return self.nombre
+
+class Caracteristica(models.Model):
+    nombre = models.CharField(max_length=100)
+    descripcion = models.TextField(blank=True, default='')
+
+    def __str__(self):
+        return self.nombre
+
+class ItemInventario(models.Model):
+    TIPO_CHOICES = [
         ('semilla', 'Semilla'),
-        ('esqueje', 'Esqueje'),
+        ('lampara', 'Lámpara'),
+        ('maceta', 'Maceta'),
+        ('fertilizante', 'Fertilizante'),
+        ('aditivo', 'Aditivo'),
+        ('base', 'Base'),
+        ('otro', 'Otro'),
     ]
 
-    ETAPAS = [
-        ('germinacion', 'Germinación'),
-        ('planta_bebe', 'Planta Bebé'),
-        ('vegetacion', 'Vegetación'),
-        ('pre_floracion', 'Pre-Floración'),
-        ('floracion', 'Floración'),
-        ('cosecha', 'Cosecha'),
-        ('secado', 'Secado'),
-        ('curado', 'Curado'),
+    nombre = models.CharField(max_length=200)
+    tipo = models.CharField(max_length=20, choices=TIPO_CHOICES, default='otro')
+    cantidad = models.IntegerField(default=0)
+    descripcion = models.TextField(blank=True, default='')
+    usuario = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
+    fecha_agregado = models.DateTimeField(default=timezone.now)
+
+    class Meta:
+        abstract = True
+
+class Semilla(ItemInventario):
+    banco = models.ForeignKey(Banco, on_delete=models.SET_NULL, null=True, blank=True)
+    porcentaje_thc = models.DecimalField(max_digits=4, decimal_places=2, validators=[MinValueValidator(0), MaxValueValidator(100)], default=0)
+    porcentaje_cbd = models.DecimalField(max_digits=4, decimal_places=2, validators=[MinValueValidator(0), MaxValueValidator(100)], default=0)
+    dias_flora = models.IntegerField(validators=[MinValueValidator(0)], default=60)
+    terpenos = models.ManyToManyField(Terpeno, blank=True)
+    caracteristicas = models.ManyToManyField(Caracteristica, blank=True)
+    descripcion = models.TextField(blank=True, default='')
+    cantidad = models.IntegerField(validators=[MinValueValidator(0)], default=0)
+    fecha_compra = models.DateField(default=timezone.now)
+
+    def __str__(self):
+        return f"{self.nombre} - {self.banco.nombre}"
+
+class Lampara(ItemInventario):
+    potencia = models.IntegerField(validators=[MinValueValidator(0)], default=0)
+    tipo = models.CharField(max_length=100, default='LED')
+    marca = models.CharField(max_length=100, default='')
+    descripcion = models.TextField(blank=True, default='')
+    cantidad = models.IntegerField(validators=[MinValueValidator(0)], default=0)
+
+    def __str__(self):
+        return f"{self.nombre} - {self.marca}"
+
+class Maceta(ItemInventario):
+    capacidad = models.DecimalField(max_digits=6, decimal_places=2, validators=[MinValueValidator(0)], default=0)
+    material = models.CharField(max_length=100, default='Plástico')
+    descripcion = models.TextField(blank=True, default='')
+    cantidad = models.IntegerField(validators=[MinValueValidator(0)], default=0)
+
+    def __str__(self):
+        return f"{self.nombre} - {self.capacidad}L"
+
+class Fertilizante(ItemInventario):
+    marca = models.CharField(max_length=100, default='')
+    tipo = models.CharField(max_length=100, default='')
+    npk = models.CharField(max_length=20, default='0-0-0')
+    descripcion = models.TextField(blank=True, default='')
+    cantidad = models.IntegerField(validators=[MinValueValidator(0)], default=0)
+
+    def __str__(self):
+        return f"{self.nombre} - {self.marca}"
+
+class Aditivo(ItemInventario):
+    marca = models.CharField(max_length=100, default='')
+    tipo = models.CharField(max_length=100, default='')
+    descripcion = models.TextField(blank=True, default='')
+    cantidad = models.IntegerField(validators=[MinValueValidator(0)], default=0)
+
+    def __str__(self):
+        return f"{self.nombre} - {self.marca}"
+
+class Base(ItemInventario):
+    marca = models.CharField(max_length=100, default='')
+    tipo = models.CharField(max_length=100, default='')
+    descripcion = models.TextField(blank=True, default='')
+    cantidad = models.IntegerField(validators=[MinValueValidator(0)], default=0)
+
+    def __str__(self):
+        return f"{self.nombre} - {self.marca}"
+
+class Planta(models.Model):
+    TIPO_PLANTA_CHOICES = [
+        ('REGULAR', 'Regular'),
+        ('FEMINIZADA', 'Feminizada'),
+        ('AUTOFLORECIENTE', 'Autofloreciente'),
+    ]
+
+    ETAPA_CHOICES = [
+        ('GERMINACION', 'Germinación'),
+        ('PLANTULA', 'Plántula'),
+        ('VEGETATIVO', 'Vegetativo'),
+        ('FLORACION', 'Floración'),
+        ('SECADO', 'Secado'),
+        ('CURADO', 'Curado'),
     ]
 
     nombre_id = models.CharField(max_length=100)
-    tipo_planta = models.CharField(max_length=20, choices=TIPOS_PLANTA, default='semilla')
+    tipo_planta = models.CharField(max_length=20, choices=TIPO_PLANTA_CHOICES, default='FEMINIZADA')
     semilla = models.ForeignKey(Semilla, on_delete=models.SET_NULL, null=True, blank=True)
-    planta_madre = models.ForeignKey('self', on_delete=models.SET_NULL, null=True, blank=True, related_name='esquejes')
+    planta_madre = models.ForeignKey('self', on_delete=models.SET_NULL, null=True, blank=True)
     es_madre = models.BooleanField(default=False)
-    thc_estimado = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True, help_text='Porcentaje estimado de THC')
-    cbd_estimado = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True, help_text='Porcentaje estimado de CBD')
-    fecha_germinacion = models.DateField(null=True, blank=True)
-    etapa_actual = models.CharField(max_length=20, choices=ETAPAS, default='germinacion')
-    area = models.ForeignKey(AreaCultivo, on_delete=models.CASCADE)
+    thc_estimado = models.DecimalField(max_digits=4, decimal_places=2, validators=[MinValueValidator(0), MaxValueValidator(100)], default=0)
+    cbd_estimado = models.DecimalField(max_digits=4, decimal_places=2, validators=[MinValueValidator(0), MaxValueValidator(100)], default=0)
+    fecha_germinacion = models.DateField(default=timezone.now)
+    etapa_actual = models.CharField(max_length=20, choices=ETAPA_CHOICES, default='GERMINACION')
+    area = models.ForeignKey(AreaCultivo, on_delete=models.CASCADE, null=True, blank=True)
     activa = models.BooleanField(default=True)
     fecha_creacion = models.DateTimeField(default=timezone.now)
 
     def __str__(self):
-        return self.nombre_id
+        return f"{self.nombre_id} - {self.etapa_actual}"
 
     def get_absolute_url(self):
         return reverse('gestion_cultivo:detalle_planta', args=[str(self.id)])

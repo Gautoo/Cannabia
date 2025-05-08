@@ -1,0 +1,120 @@
+{% extends 'gestion_cultivo/base.html' %}
+{% load static %}
+
+{% block title %}Detalle de Área - Mi Cultivo App{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row mb-4">
+        <div class="col">
+            <h1 class="display-4">{{ area.nombre }}</h1>
+            <p class="lead">Área en sala: {{ area.sala.nombre }}</p>
+        </div>
+        <div class="col-auto">
+            <div class="btn-group">
+                <a href="{% url 'gestion_cultivo:editar_area' area.id %}" class="btn btn-primary">
+                    <i class="fas fa-edit"></i> Editar
+                </a>
+                <a href="{% url 'gestion_cultivo:eliminar_area' area.id %}" class="btn btn-danger">
+                    <i class="fas fa-trash"></i> Eliminar
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Información General</h5>
+                </div>
+                <div class="card-body">
+                    <dl class="row">
+                        <dt class="col-sm-4">Sala</dt>
+                        <dd class="col-sm-8">{{ area.sala.nombre }}</dd>
+
+                        <dt class="col-sm-4">Dimensiones</dt>
+                        <dd class="col-sm-8">{{ area.largo }}m x {{ area.ancho }}m</dd>
+
+                        <dt class="col-sm-4">Altura</dt>
+                        <dd class="col-sm-8">{{ area.altura }}m</dd>
+
+                        {% if area.composicion_sustrato %}
+                        <dt class="col-sm-4">Sustrato</dt>
+                        <dd class="col-sm-8">{{ area.composicion_sustrato }}</dd>
+                        {% endif %}
+
+                        <dt class="col-sm-4">Fecha de creación</dt>
+                        <dd class="col-sm-8">{{ area.fecha_creacion|date:"d/m/Y" }}</dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Plantas en esta área</h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <a href="{% url 'gestion_cultivo:mover_area' area.pk %}" class="btn btn-warning">
+                                <i class="fas fa-exchange-alt"></i> Mover Área
+                            </a>
+                            <a href="{% url 'gestion_cultivo:crear_planta' area.pk %}" class="btn btn-primary">
+                                <i class="fas fa-plus"></i> Agregar Planta
+                            </a>
+                        </div>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Nombre</th>
+                                    <th>Tipo</th>
+                                    <th>Estado</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for planta in plantas %}
+                                <tr>
+                                    <td>{{ planta.nombre }}</td>
+                                    <td>{{ planta.get_tipo_planta_display }}</td>
+                                    <td>
+                                        {% if planta.activa %}
+                                        <span class="badge bg-success">Activa</span>
+                                        {% else %}
+                                        <span class="badge bg-danger">Inactiva</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <a href="{% url 'gestion_cultivo:detalle_planta' planta.pk %}" class="btn btn-sm btn-info">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                        <a href="{% url 'gestion_cultivo:editar_planta' planta.pk %}" class="btn btn-sm btn-warning">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        <a href="{% url 'gestion_cultivo:mover_planta' planta.pk %}" class="btn btn-sm btn-secondary">
+                                            <i class="fas fa-exchange-alt"></i>
+                                        </a>
+                                        <a href="{% url 'gestion_cultivo:eliminar_planta' planta.pk %}" class="btn btn-sm btn-danger">
+                                            <i class="fas fa-trash"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="4" class="text-center">No hay plantas en esta área</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

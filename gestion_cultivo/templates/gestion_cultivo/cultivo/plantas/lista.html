@@ -1,0 +1,70 @@
+{% extends 'gestion_cultivo/base.html' %}
+{% load static %}
+
+{% block title %}Lista de Plantas - Mi Cultivo App{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row mb-4">
+        <div class="col">
+            <h1 class="display-4">Lista de Plantas</h1>
+            <p class="lead">Gestiona todas tus plantas</p>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col">
+            <div class="card">
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Nombre</th>
+                                    <th>Área</th>
+                                    <th>Sala</th>
+                                    <th>Tipo</th>
+                                    <th>Estado</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for planta in plantas %}
+                                <tr>
+                                    <td>{{ planta.nombre }}</td>
+                                    <td>{{ planta.area.nombre }}</td>
+                                    <td>{{ planta.area.sala.nombre }}</td>
+                                    <td>{{ planta.get_tipo_planta_display }}</td>
+                                    <td>
+                                        {% if planta.activa %}
+                                        <span class="badge bg-success">Activa</span>
+                                        {% else %}
+                                        <span class="badge bg-danger">Inactiva</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <a href="{% url 'gestion_cultivo:detalle_planta' planta.id %}" class="btn btn-sm btn-info">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                        <a href="{% url 'gestion_cultivo:editar_planta' planta.id %}" class="btn btn-sm btn-warning">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        <a href="{% url 'gestion_cultivo:eliminar_planta' planta.id %}" class="btn btn-sm btn-danger">
+                                            <i class="fas fa-trash"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="6" class="text-center">No hay plantas registradas</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

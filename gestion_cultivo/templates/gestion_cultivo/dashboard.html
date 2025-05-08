@@ -1,0 +1,126 @@
+{% extends 'gestion_cultivo/base.html' %}
+{% load static %}
+
+{% block title %}Dashboard - Mi Cultivo App{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <!-- Resumen de Cultivo -->
+        <div class="col-md-12 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Resumen de Cultivo</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-3 mb-3">
+                            <div class="card bg-primary text-white">
+                                <div class="card-body">
+                                    <h6 class="card-title">Salas Activas</h6>
+                                    <h2 class="mb-0">{{ salas_count }}</h2>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <div class="card bg-success text-white">
+                                <div class="card-body">
+                                    <h6 class="card-title">Áreas Activas</h6>
+                                    <h2 class="mb-0">{{ areas_count }}</h2>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <div class="card bg-info text-white">
+                                <div class="card-body">
+                                    <h6 class="card-title">Plantas Activas</h6>
+                                    <h2 class="mb-0">{{ plantas_count }}</h2>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <div class="card bg-warning text-white">
+                                <div class="card-body">
+                                    <h6 class="card-title">Plantas Madre</h6>
+                                    <h2 class="mb-0">{{ plantas_madre_count }}</h2>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Acciones Rápidas -->
+        <div class="col-md-12 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Acciones Rápidas</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <a href="{% url 'gestion_cultivo:crear_sala' %}" class="btn btn-outline-primary w-100">
+                                <i class="fas fa-plus"></i> Nueva Sala
+                            </a>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <a href="{% url 'gestion_cultivo:lista_salas' %}" class="btn btn-outline-secondary w-100">
+                                <i class="fas fa-door-open"></i> Ver Salas
+                            </a>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <a href="{% url 'gestion_cultivo:inventario' %}" class="btn btn-outline-info w-100">
+                                <i class="fas fa-boxes"></i> Inventario
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Últimas Actividades -->
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Últimas Actividades</h5>
+                </div>
+                <div class="card-body">
+                    {% if ultimas_plantas %}
+                        <div class="table-responsive">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Planta</th>
+                                        <th>Área</th>
+                                        <th>Estado</th>
+                                        <th>Última Actualización</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for planta in ultimas_plantas %}
+                                    <tr>
+                                        <td>{{ planta.nombre_id }}</td>
+                                        <td>{{ planta.area.nombre }}</td>
+                                        <td>
+                                            {% if planta.activa %}
+                                                <span class="badge bg-success">Activa</span>
+                                            {% else %}
+                                                <span class="badge bg-danger">Inactiva</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>{{ planta.fecha_actualizacion|date:"d/m/Y H:i" }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <p class="text-muted">No hay actividades recientes.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

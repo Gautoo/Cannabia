@@ -1,0 +1,133 @@
+{% extends 'gestion_cultivo/base.html' %}
+{% load static %}
+
+{% block title %}Crear Semilla - Mi Cultivo App{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Crear Semilla</h3>
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        {% if form.errors %}
+                            <div class="alert alert-danger">
+                                Por favor, corrija los errores a continuación.
+                            </div>
+                        {% endif %}
+                        
+                        <div class="form-group mb-3">
+                            <label for="{{ form.nombre.id_for_label }}">Nombre:</label>
+                            {{ form.nombre }}
+                            {% if form.nombre.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.nombre.errors }}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <label for="{{ form.banco.id_for_label }}">Banco:</label>
+                            {{ form.banco }}
+                            {% if form.banco.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.banco.errors }}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <label for="{{ form.porcentaje_thc.id_for_label }}">Porcentaje THC (%):</label>
+                            {{ form.porcentaje_thc }}
+                            {% if form.porcentaje_thc.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.porcentaje_thc.errors }}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <label for="{{ form.porcentaje_cbd.id_for_label }}">Porcentaje CBD (%):</label>
+                            {{ form.porcentaje_cbd }}
+                            {% if form.porcentaje_cbd.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.porcentaje_cbd.errors }}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <label for="{{ form.dias_flora.id_for_label }}">Días de Floración:</label>
+                            {{ form.dias_flora }}
+                            {% if form.dias_flora.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.dias_flora.errors }}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <label for="{{ form.terpenos.id_for_label }}">Terpenos:</label>
+                            {{ form.terpenos }}
+                            {% if form.terpenos.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.terpenos.errors }}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <label for="{{ form.caracteristicas.id_for_label }}">Características:</label>
+                            {{ form.caracteristicas }}
+                            {% if form.caracteristicas.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.caracteristicas.errors }}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <label for="{{ form.cantidad.id_for_label }}">Cantidad:</label>
+                            {{ form.cantidad }}
+                            {% if form.cantidad.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.cantidad.errors }}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <label for="{{ form.fecha_compra.id_for_label }}">Fecha de Compra:</label>
+                            {{ form.fecha_compra }}
+                            {% if form.fecha_compra.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.fecha_compra.errors }}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <label for="{{ form.descripcion.id_for_label }}">Descripción:</label>
+                            {{ form.descripcion }}
+                            {% if form.descripcion.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.descripcion.errors }}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="form-group">
+                            <button type="submit" class="btn btn-primary">Crear Semilla</button>
+                            <a href="{% url 'gestion_cultivo:lista_semillas' %}" class="btn btn-secondary">Cancelar</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

@@ -1,0 +1,107 @@
+{% extends 'gestion_cultivo/base.html' %}
+{% load static %}
+
+{% block title %}Agregar Producto Nuevo - Mi Cultivo App{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3 mb-0">Agregar Producto Nuevo</h1>
+        <a href="{% url 'gestion_cultivo:inventario' %}" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left"></i> Volver al Inventario
+        </a>
+    </div>
+
+    <div class="row">
+        <!-- Semillas -->
+        <div class="col-md-6 col-lg-4 mb-4">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <i class="fas fa-seedling text-success"></i> Semillas
+                    </h5>
+                    <p class="card-text">Registra nuevas semillas con sus características genéticas y detalles de cultivo.</p>
+                    <a href="{% url 'gestion_cultivo:agregar_semilla' %}" class="btn btn-outline-success">
+                        <i class="fas fa-plus"></i> Agregar Semilla
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Lámparas -->
+        <div class="col-md-6 col-lg-4 mb-4">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <i class="fas fa-lightbulb text-warning"></i> Lámparas
+                    </h5>
+                    <p class="card-text">Registra nuevas lámparas con sus especificaciones técnicas y características.</p>
+                    <a href="{% url 'gestion_cultivo:agregar_lampara' %}" class="btn btn-outline-warning">
+                        <i class="fas fa-plus"></i> Agregar Lámpara
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Macetas -->
+        <div class="col-md-6 col-lg-4 mb-4">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <i class="fas fa-flower text-info"></i> Macetas
+                    </h5>
+                    <p class="card-text">Registra nuevas macetas con su capacidad y material.</p>
+                    <a href="{% url 'gestion_cultivo:agregar_maceta' %}" class="btn btn-outline-info">
+                        <i class="fas fa-plus"></i> Agregar Maceta
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Fertilizantes -->
+        <div class="col-md-6 col-lg-4 mb-4">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <i class="fas fa-flask text-primary"></i> Fertilizantes
+                    </h5>
+                    <p class="card-text">Registra nuevos fertilizantes con su composición y características.</p>
+                    <a href="{% url 'gestion_cultivo:agregar_fertilizante' %}" class="btn btn-outline-primary">
+                        <i class="fas fa-plus"></i> Agregar Fertilizante
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Aditivos -->
+        <div class="col-md-6 col-lg-4 mb-4">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <i class="fas fa-vial text-secondary"></i> Aditivos
+                    </h5>
+                    <p class="card-text">Registra nuevos aditivos para el cultivo.</p>
+                    <a href="{% url 'gestion_cultivo:agregar_aditivo' %}" class="btn btn-outline-secondary">
+                        <i class="fas fa-plus"></i> Agregar Aditivo
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bases -->
+        <div class="col-md-6 col-lg-4 mb-4">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <i class="fas fa-layer-group text-dark"></i> Bases
+                    </h5>
+                    <p class="card-text">Registra nuevos sustratos y medios de cultivo.</p>
+                    <a href="{% url 'gestion_cultivo:agregar_base' %}" class="btn btn-outline-dark">
+                        <i class="fas fa-plus"></i> Agregar Base
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

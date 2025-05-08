@@ -1,0 +1,44 @@
+{% extends 'gestion_cultivo/base.html' %}
+
+{% block title %}Eliminar {{ area.nombre }} - Mi Cultivo App{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row mb-4">
+        <div class="col">
+            <h1 class="display-4">Eliminar Área</h1>
+            <p class="lead">¿Estás seguro de que deseas eliminar esta área de cultivo?</p>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-8 mx-auto">
+            <div class="card border-danger">
+                <div class="card-header bg-danger text-white">
+                    <h2 class="mb-0">Confirmar Eliminación</h2>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-warning">
+                        <h4 class="alert-heading">¡Advertencia!</h4>
+                        <p>Estás a punto de eliminar el área "{{ area.nombre }}". Esta acción no se puede deshacer.</p>
+                        <hr>
+                        <p class="mb-0">Se eliminarán también todas las plantas asociadas a esta área.</p>
+                    </div>
+
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-danger">
+                                <i class="fas fa-trash"></i> Sí, Eliminar Área
+                            </button>
+                            <a href="{% url 'gestion_cultivo:detalle_area' area.id %}" class="btn btn-outline-secondary">
+                                <i class="fas fa-times"></i> Cancelar
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 
