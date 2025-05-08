@@ -6,8 +6,8 @@ from django.contrib import messages
 from django.urls import reverse
 from django.http import HttpResponseRedirect
 
-from .forms import SalaForm, RegistroUsuarioForm, AreaCultivoForm, PlantaForm, GeneticaForm
-from .models import Sala, AreaCultivo, Planta, Genetica
+from .forms import SalaForm, RegistroUsuarioForm, AreaCultivoForm, PlantaForm, GeneticaForm, SemillaForm
+from .models import Sala, AreaCultivo, Planta, Genetica, Semilla
 
 def pagina_inicio_cultivo(request):
     return render(request, 'gestion_cultivo/inicio_cultivo.html')
@@ -182,28 +182,23 @@ def eliminar_area(request, area_id):
 # Vistas para el CRUD de Plantas
 @login_required
 def crear_planta(request, area_id):
-    # Obtiene el área o devuelve 404 si no existe
-    area = get_object_or_404(AreaCultivo, id=area_id, sala__usuario=request.user)
+    area = get_object_or_404(AreaCultivo, id=area_id)
     
     if request.method == 'POST':
         form = PlantaForm(request.POST)
         if form.is_valid():
             planta = form.save(commit=False)
             planta.area = area
-            planta.save()
-            messages.success(request, f"La planta '{planta.nombre_id}' ha sido creada exitosamente.")
+            planta.save()  # El método save() del modelo manejará la reducción del stock de semillas
+            messages.success(request, 'Planta creada exitosamente.')
             return redirect('gestion_cultivo:detalle_area', area_id=area.id)
-        else:
-            messages.error(request, "Por favor, corrige los errores en el formulario.")
     else:
         form = PlantaForm()
     
-    context = {
+    return render(request, 'gestion_cultivo/crear_planta.html', {
         'form': form,
-        'area': area,
-        'sala': area.sala
-    }
-    return render(request, 'gestion_cultivo/crear_planta.html', context)
+        'area': area
+    })
 
 @login_required
 def detalle_planta(request, planta_id):
@@ -219,46 +214,50 @@ def detalle_planta(request, planta_id):
 
 @login_required
 def editar_planta(request, planta_id):
-    # Obtiene la planta o devuelve 404 si no existe
-    planta = get_object_or_404(Planta, id=planta_id, area__sala__usuario=request.user)
+    planta = get_object_or_404(Planta, id=planta_id)
     
     if request.method == 'POST':
         form = PlantaForm(request.POST, instance=planta)
         if form.is_valid():
-            form.save()
-            messages.success(request, f"La planta '{planta.nombre_id}' ha sido actualizada exitosamente.")
+            # Si el tipo de planta ha cambiado, necesitamos manejar el stock de semillas
+            tipo_planta_anterior = planta.tipo_planta
+            semilla_anterior = planta.semilla
+            
+            planta = form.save()
+            
+            # Si la planta era de tipo semilla y ahora es esqueje, devolvemos la semilla al stock
+            if tipo_planta_anterior == 'semilla' and planta.tipo_planta == 'esqueje' and semilla_anterior:
+                semilla_anterior.cantidad_disponible += 1
+                semilla_anterior.save()
+            
+            messages.success(request, 'Planta actualizada exitosamente.')
             return redirect('gestion_cultivo:detalle_planta', planta_id=planta.id)
-        else:
-            messages.error(request, "Por favor, corrige los errores en el formulario.")
     else:
         form = PlantaForm(instance=planta)
     
-    context = {
+    return render(request, 'gestion_cultivo/editar_planta.html', {
         'form': form,
-        'planta': planta,
-        'area': planta.area,
-        'sala': planta.area.sala
-    }
-    return render(request, 'gestion_cultivo/editar_planta.html', context)
+        'planta': planta
+    })
 
 @login_required
 def eliminar_planta(request, planta_id):
-    # Obtiene la planta o devuelve 404 si no existe
-    planta = get_object_or_404(Planta, id=planta_id, area__sala__usuario=request.user)
+    planta = get_object_or_404(Planta, id=planta_id)
+    area = planta.area
     
     if request.method == 'POST':
-        nombre_planta = planta.nombre_id
-        area_id = planta.area.id
+        # Si la planta era de tipo semilla, devolvemos la semilla al stock
+        if planta.tipo_planta == 'semilla' and planta.semilla:
+            planta.semilla.cantidad_disponible += 1
+            planta.semilla.save()
+        
         planta.delete()
-        messages.success(request, f"La planta '{nombre_planta}' ha sido eliminada exitosamente.")
-        return redirect('gestion_cultivo:detalle_area', area_id=area_id)
+        messages.success(request, 'Planta eliminada exitosamente.')
+        return redirect('gestion_cultivo:detalle_area', area_id=area.id)
     
-    context = {
-        'planta': planta,
-        'area': planta.area,
-        'sala': planta.area.sala
-    }
-    return render(request, 'gestion_cultivo/eliminar_planta.html', context)
+    return render(request, 'gestion_cultivo/eliminar_planta.html', {
+        'planta': planta
+    })
 
 # Vistas para el CRUD de Genéticas
 @login_required
@@ -319,4 +318,71 @@ def eliminar_genetica(request, genetica_id):
     
     return render(request, 'gestion_cultivo/eliminar_genetica.html', {
         'genetica': genetica
+    })
+
+# Vistas para el CRUD de Semillas
+@login_required
+def lista_semillas(request):
+    semillas = Semilla.objects.all().order_by('nombre')
+    return render(request, 'gestion_cultivo/lista_semillas.html', {
+        'semillas': semillas
+    })
+
+@login_required
+def crear_semilla(request):
+    if request.method == 'POST':
+        form = SemillaForm(request.POST)
+        if form.is_valid():
+            semilla = form.save()
+            messages.success(request, 'Semilla creada exitosamente.')
+            return redirect('gestion_cultivo:detalle_semilla', semilla_id=semilla.id)
+    else:
+        form = SemillaForm()
+    
+    return render(request, 'gestion_cultivo/crear_semilla.html', {
+        'form': form
+    })
+
+@login_required
+def detalle_semilla(request, semilla_id):
+    semilla = get_object_or_404(Semilla, id=semilla_id)
+    plantas = Planta.objects.filter(semilla=semilla)
+    return render(request, 'gestion_cultivo/detalle_semilla.html', {
+        'semilla': semilla,
+        'plantas': plantas
+    })
+
+@login_required
+def editar_semilla(request, semilla_id):
+    semilla = get_object_or_404(Semilla, id=semilla_id)
+    if request.method == 'POST':
+        form = SemillaForm(request.POST, instance=semilla)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Semilla actualizada exitosamente.')
+            return redirect('gestion_cultivo:detalle_semilla', semilla_id=semilla.id)
+    else:
+        form = SemillaForm(instance=semilla)
+    
+    return render(request, 'gestion_cultivo/editar_semilla.html', {
+        'form': form,
+        'semilla': semilla
+    })
+
+@login_required
+def eliminar_semilla(request, semilla_id):
+    semilla = get_object_or_404(Semilla, id=semilla_id)
+    if request.method == 'POST':
+        semilla.delete()
+        messages.success(request, 'Semilla eliminada exitosamente.')
+        return redirect('gestion_cultivo:lista_semillas')
+    
+    return render(request, 'gestion_cultivo/eliminar_semilla.html', {
+        'semilla': semilla
+    })
+
+def lista_plantas_madre(request):
+    plantas_madre = Planta.objects.filter(es_madre=True, activa=True).order_by('nombre_id')
+    return render(request, 'gestion_cultivo/lista_plantas_madre.html', {
+        'plantas_madre': plantas_madre
     })

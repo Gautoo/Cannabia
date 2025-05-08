@@ -1,0 +1,37 @@
+{% extends "gestion_cultivo/base.html" %}
+
+{% block title %}Eliminar {{ semilla.nombre }}{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'gestion_cultivo:lista_semillas' %}">Semillas</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'gestion_cultivo:detalle_semilla' semilla.id %}">{{ semilla.nombre }}</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Eliminar</li>
+        </ol>
+    </nav>
+
+    <div class="card">
+        <div class="card-header">
+            <h5 class="card-title mb-0">Eliminar Semilla</h5>
+        </div>
+        <div class="card-body">
+            <div class="alert alert-danger">
+                <h4 class="alert-heading">¡Advertencia!</h4>
+                <p>¿Estás seguro de que deseas eliminar la semilla "{{ semilla.nombre }}"?</p>
+                <hr>
+                <p class="mb-0">Esta acción no se puede deshacer.</p>
+            </div>
+
+            <form method="post">
+                {% csrf_token %}
+                <div class="mt-4 d-flex gap-2">
+                    <a href="{% url 'gestion_cultivo:detalle_semilla' semilla.id %}" class="btn btn-secondary">Cancelar</a>
+                    <button type="submit" class="btn btn-danger">Eliminar Semilla</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %} 

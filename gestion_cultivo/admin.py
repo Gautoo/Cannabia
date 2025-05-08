@@ -1,6 +1,6 @@
 # gestion_cultivo/admin.py
 from django.contrib import admin
-from .models import Sala, AreaCultivo, Planta # Importa tus modelos
+from .models import Sala, AreaCultivo, Planta, Genetica, Semilla
 
 # Clases de Administración (Opcional pero recomendado para personalizar el admin)
 class AreaCultivoInline(admin.StackedInline): # O admin.TabularInline para vista más compacta
@@ -11,30 +11,34 @@ class PlantaInline(admin.StackedInline):
     model = Planta
     extra = 1 # Cuántos formularios de plantas vacías mostrar
 
+@admin.register(Sala)
 class SalaAdmin(admin.ModelAdmin):
-    list_display = ('nombre', 'usuario', 'descripcion') # Columnas a mostrar en la lista de Salas
-    list_filter = ('usuario',) # Permite filtrar por usuario
-    search_fields = ('nombre',) # Añade un campo de búsqueda por nombre
-    inlines = [AreaCultivoInline] # Permite añadir/editar Áreas directamente desde la Sala
+    list_display = ('nombre', 'usuario', 'tipo', 'fecha_creacion')
+    list_filter = ('tipo', 'usuario')
+    search_fields = ('nombre',)
 
+@admin.register(AreaCultivo)
 class AreaCultivoAdmin(admin.ModelAdmin):
-    list_display = ('nombre', 'sala', 'get_sala_usuario') # Muestra el nombre, la sala y el usuario de la sala
-    list_filter = ('sala__usuario', 'sala') # Permite filtrar por usuario (a través de la sala) o por sala
-    search_fields = ('nombre', 'sala__nombre')
-    inlines = [PlantaInline] # Permite añadir/editar Plantas directamente desde el Área
+    list_display = ('nombre', 'sala', 'tipo_cultivo', 'tiene_riego_automatico', 'fecha_creacion')
+    list_filter = ('tipo_cultivo', 'tiene_riego_automatico', 'sala')
+    search_fields = ('nombre',)
 
-    # Función para mostrar el usuario de la sala en la lista
-    @admin.display(description='Usuario de la Sala')
-    def get_sala_usuario(self, obj):
-        return obj.sala.usuario
-
+@admin.register(Planta)
 class PlantaAdmin(admin.ModelAdmin):
-    list_display = ('nombre_id', 'genetica', 'area', 'etapa_actual', 'activa')
-    list_filter = ('etapa_actual', 'activa', 'area__sala__usuario', 'area__sala', 'area') # Filtros útiles
-    search_fields = ('nombre_id', 'genetica', 'area__nombre', 'area__sala__nombre')
-    list_editable = ('etapa_actual', 'activa') # Permite editar estos campos directamente en la lista
+    list_display = ('nombre_id', 'tipo_planta', 'etapa_actual', 'area', 'activa', 'fecha_creacion')
+    list_filter = ('tipo_planta', 'etapa_actual', 'activa', 'area')
+    search_fields = ('nombre_id',)
+    date_hierarchy = 'fecha_creacion'
 
-# Registra tus modelos con sus clases de administración personalizadas
-admin.site.register(Sala, SalaAdmin)
-admin.site.register(AreaCultivo, AreaCultivoAdmin)
-admin.site.register(Planta, PlantaAdmin)
+@admin.register(Genetica)
+class GeneticaAdmin(admin.ModelAdmin):
+    list_display = ('nombre', 'thc_estimado', 'cbd_estimado', 'fecha_creacion')
+    search_fields = ('nombre',)
+    date_hierarchy = 'fecha_creacion'
+
+@admin.register(Semilla)
+class SemillaAdmin(admin.ModelAdmin):
+    list_display = ('nombre', 'cantidad_disponible', 'fecha_compra', 'fecha_creacion')
+    list_filter = ('fecha_compra',)
+    search_fields = ('nombre',)
+    date_hierarchy = 'fecha_creacion'

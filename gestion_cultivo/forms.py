@@ -3,7 +3,8 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User # Importa el modelo User
-from .models import Sala, AreaCultivo, Planta, Genetica
+from .models import Sala, AreaCultivo, Planta, Genetica, Semilla
+from django.utils import timezone
 
 class RegistroUsuarioForm(UserCreationForm):
     # UserCreationForm ya incluye campos para username y passwords
@@ -35,27 +36,30 @@ class RegistroUsuarioForm(UserCreationForm):
 class SalaForm(forms.ModelForm):
     class Meta:
         model = Sala
-        fields = ['nombre', 'tipo', 'altura', 'largo', 'ancho']
+        fields = ['nombre', 'descripcion', 'tipo', 'altura', 'largo', 'ancho']
         widgets = {
-            'nombre': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Nombre de la sala'}),
+            'nombre': forms.TextInput(attrs={'class': 'form-control'}),
+            'descripcion': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
             'tipo': forms.Select(attrs={'class': 'form-select'}),
-            'altura': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Altura en metros', 'step': '0.01'}),
-            'largo': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Largo en metros', 'step': '0.01'}),
-            'ancho': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Ancho en metros', 'step': '0.01'}),
+            'altura': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.01'}),
+            'largo': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.01'}),
+            'ancho': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.01'}),
         }
         labels = {
             'nombre': 'Nombre de la Sala',
+            'descripcion': 'Descripción',
             'tipo': 'Tipo de Sala',
             'altura': 'Altura (metros)',
             'largo': 'Largo (metros)',
             'ancho': 'Ancho (metros)',
         }
         help_texts = {
-            'nombre': 'Ingrese un nombre descriptivo para la sala',
-            'tipo': 'Seleccione el tipo de sala según su uso',
-            'altura': 'Altura máxima disponible en metros',
-            'largo': 'Largo total de la sala en metros',
-            'ancho': 'Ancho total de la sala en metros',
+            'nombre': 'Ingresa un nombre descriptivo para la sala.',
+            'descripcion': 'Proporciona detalles adicionales sobre la sala (opcional).',
+            'tipo': 'Selecciona el tipo de sala según su uso principal.',
+            'altura': 'Ingresa la altura de la sala en metros.',
+            'largo': 'Ingresa el largo de la sala en metros.',
+            'ancho': 'Ingresa el ancho de la sala en metros.',
         }
 
 class AreaCultivoForm(forms.ModelForm):
@@ -66,9 +70,9 @@ class AreaCultivoForm(forms.ModelForm):
             'nombre': forms.TextInput(attrs={'class': 'form-control'}),
             'tipo_cultivo': forms.Select(attrs={'class': 'form-select'}),
             'tiene_riego_automatico': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
-            'altura': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.01', 'min': '0'}),
-            'largo': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.01', 'min': '0'}),
-            'ancho': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.01', 'min': '0'}),
+            'altura': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.01'}),
+            'largo': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.01'}),
+            'ancho': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.01'}),
         }
         labels = {
             'nombre': 'Nombre del Área',
@@ -77,6 +81,14 @@ class AreaCultivoForm(forms.ModelForm):
             'altura': 'Altura (metros)',
             'largo': 'Largo (metros)',
             'ancho': 'Ancho (metros)',
+        }
+        help_texts = {
+            'nombre': 'Ingresa un nombre descriptivo para el área.',
+            'tipo_cultivo': 'Selecciona el tipo de cultivo que se realizará en esta área.',
+            'tiene_riego_automatico': 'Marca esta casilla si el área cuenta con sistema de riego automático.',
+            'altura': 'Ingresa la altura del área en metros.',
+            'largo': 'Ingresa el largo del área en metros.',
+            'ancho': 'Ingresa el ancho del área en metros.',
         }
 
     def __init__(self, *args, **kwargs):
@@ -88,10 +100,10 @@ class GeneticaForm(forms.ModelForm):
         model = Genetica
         fields = ['nombre', 'descripcion', 'thc_estimado', 'cbd_estimado']
         widgets = {
-            'nombre': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Nombre de la genética'}),
-            'descripcion': forms.Textarea(attrs={'class': 'form-control', 'rows': 3, 'placeholder': 'Descripción de la genética'}),
-            'thc_estimado': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Porcentaje estimado de THC', 'step': '0.01'}),
-            'cbd_estimado': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Porcentaje estimado de CBD', 'step': '0.01'}),
+            'nombre': forms.TextInput(attrs={'class': 'form-control'}),
+            'descripcion': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
+            'thc_estimado': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.1'}),
+            'cbd_estimado': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.1'}),
         }
         labels = {
             'nombre': 'Nombre de la Genética',
@@ -100,40 +112,95 @@ class GeneticaForm(forms.ModelForm):
             'cbd_estimado': 'CBD Estimado (%)',
         }
         help_texts = {
-            'nombre': 'Ingrese el nombre de la genética',
-            'descripcion': 'Descripción detallada de la genética (opcional)',
-            'thc_estimado': 'Porcentaje estimado de THC (opcional)',
-            'cbd_estimado': 'Porcentaje estimado de CBD (opcional)',
+            'nombre': 'Ingresa el nombre de la genética.',
+            'descripcion': 'Proporciona detalles sobre la genética (opcional).',
+            'thc_estimado': 'Ingresa el porcentaje estimado de THC.',
+            'cbd_estimado': 'Ingresa el porcentaje estimado de CBD.',
+        }
+
+class SemillaForm(forms.ModelForm):
+    class Meta:
+        model = Semilla
+        fields = ['nombre', 'descripcion', 'cantidad_disponible', 'fecha_compra']
+        widgets = {
+            'nombre': forms.TextInput(attrs={'class': 'form-control'}),
+            'descripcion': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
+            'cantidad_disponible': forms.NumberInput(attrs={'class': 'form-control', 'min': '0'}),
+            'fecha_compra': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
+        }
+        labels = {
+            'nombre': 'Nombre de la Semilla',
+            'descripcion': 'Descripción',
+            'cantidad_disponible': 'Cantidad Disponible',
+            'fecha_compra': 'Fecha de Compra',
+        }
+        help_texts = {
+            'nombre': 'Ingresa el nombre o identificador de la semilla.',
+            'descripcion': 'Proporciona detalles sobre la semilla (opcional).',
+            'cantidad_disponible': 'Ingresa la cantidad de semillas disponibles.',
+            'fecha_compra': 'Ingresa la fecha de compra de las semillas.',
         }
 
 class PlantaForm(forms.ModelForm):
     class Meta:
         model = Planta
-        fields = ['nombre_id', 'genetica', 'thc_estimado', 'cbd_estimado', 'fecha_germinacion', 'etapa_actual', 'activa']
+        fields = ['nombre_id', 'tipo_planta', 'semilla', 'planta_madre', 'es_madre', 'fecha_germinacion', 'etapa_actual']
         widgets = {
-            'nombre_id': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Nombre o ID de la planta'}),
-            'genetica': forms.Select(attrs={'class': 'form-select'}),
-            'thc_estimado': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Porcentaje estimado de THC', 'step': '0.01'}),
-            'cbd_estimado': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Porcentaje estimado de CBD', 'step': '0.01'}),
+            'nombre_id': forms.TextInput(attrs={'class': 'form-control'}),
+            'tipo_planta': forms.Select(attrs={'class': 'form-select'}),
+            'semilla': forms.Select(attrs={'class': 'form-select'}),
+            'planta_madre': forms.Select(attrs={'class': 'form-select'}),
+            'es_madre': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
             'fecha_germinacion': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
             'etapa_actual': forms.Select(attrs={'class': 'form-select'}),
-            'activa': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
         }
         labels = {
-            'nombre_id': 'Nombre/ID de la Planta',
-            'genetica': 'Genética',
-            'thc_estimado': 'THC Estimado (%)',
-            'cbd_estimado': 'CBD Estimado (%)',
+            'nombre_id': 'Identificador de la Planta',
+            'tipo_planta': 'Tipo de Planta',
+            'semilla': 'Semilla',
+            'planta_madre': 'Planta Madre',
+            'es_madre': '¿Es Planta Madre?',
             'fecha_germinacion': 'Fecha de Germinación',
             'etapa_actual': 'Etapa Actual',
-            'activa': 'Planta Activa',
         }
         help_texts = {
-            'nombre_id': 'Ingrese un nombre o ID único para identificar la planta',
-            'genetica': 'Seleccione la genética de la planta',
-            'thc_estimado': 'Porcentaje estimado de THC (opcional)',
-            'cbd_estimado': 'Porcentaje estimado de CBD (opcional)',
-            'fecha_germinacion': 'Fecha en que germinó la semilla (opcional)',
-            'etapa_actual': 'Etapa actual del ciclo de vida de la planta',
-            'activa': 'Indica si la planta está activa o ha sido cosechada/descartada',
+            'nombre_id': 'Ingresa un identificador único para la planta.',
+            'tipo_planta': 'Selecciona si la planta proviene de semilla o esqueje.',
+            'semilla': 'Selecciona la semilla utilizada (solo si el tipo es semilla).',
+            'planta_madre': 'Selecciona la planta madre (solo si el tipo es esqueje).',
+            'es_madre': 'Marca esta casilla si la planta será utilizada como madre para esquejes.',
+            'fecha_germinacion': 'Ingresa la fecha de germinación de la planta.',
+            'etapa_actual': 'Selecciona la etapa actual de la planta.',
         }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Filtrar semillas con stock disponible
+        self.fields['semilla'].queryset = Semilla.objects.filter(cantidad_disponible__gt=0)
+        # Filtrar plantas madre activas
+        self.fields['planta_madre'].queryset = Planta.objects.filter(es_madre=True, activa=True)
+        # Hacer los campos opcionales inicialmente
+        self.fields['semilla'].required = False
+        self.fields['planta_madre'].required = False
+
+    def clean(self):
+        cleaned_data = super().clean()
+        tipo_planta = cleaned_data.get('tipo_planta')
+        semilla = cleaned_data.get('semilla')
+        planta_madre = cleaned_data.get('planta_madre')
+
+        if tipo_planta == 'semilla':
+            if not semilla:
+                self.add_error('semilla', 'Debes seleccionar una semilla.')
+            elif semilla.cantidad_disponible <= 0:
+                self.add_error('semilla', 'No hay stock disponible de esta semilla.')
+            if planta_madre:
+                self.add_error('planta_madre', 'No puedes seleccionar una planta madre si el tipo es semilla.')
+        
+        elif tipo_planta == 'esqueje':
+            if not planta_madre:
+                self.add_error('planta_madre', 'Debes seleccionar una planta madre.')
+            if semilla:
+                self.add_error('semilla', 'No puedes seleccionar una semilla si el tipo es esqueje.')
+
+        return cleaned_data

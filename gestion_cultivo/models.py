@@ -107,7 +107,25 @@ class Genetica(models.Model):
     def __str__(self):
         return self.nombre
 
+class Semilla(models.Model):
+    nombre = models.CharField(max_length=100)
+    descripcion = models.TextField(blank=True, null=True)
+    cantidad_disponible = models.PositiveIntegerField(default=0)
+    fecha_compra = models.DateField(null=True, blank=True)
+    fecha_creacion = models.DateTimeField(default=timezone.now)
+
+    def __str__(self):
+        return f"{self.nombre} ({self.cantidad_disponible} disponibles)"
+
+    def get_absolute_url(self):
+        return reverse('gestion_cultivo:detalle_semilla', args=[str(self.id)])
+
 class Planta(models.Model):
+    TIPOS_PLANTA = [
+        ('semilla', 'Semilla'),
+        ('esqueje', 'Esqueje'),
+    ]
+
     ETAPAS = [
         ('germinacion', 'Germinación'),
         ('planta_bebe', 'Planta Bebé'),
@@ -120,7 +138,10 @@ class Planta(models.Model):
     ]
 
     nombre_id = models.CharField(max_length=100)
-    genetica = models.ForeignKey(Genetica, on_delete=models.SET_NULL, null=True, blank=True)
+    tipo_planta = models.CharField(max_length=20, choices=TIPOS_PLANTA, default='semilla')
+    semilla = models.ForeignKey(Semilla, on_delete=models.SET_NULL, null=True, blank=True)
+    planta_madre = models.ForeignKey('self', on_delete=models.SET_NULL, null=True, blank=True, related_name='esquejes')
+    es_madre = models.BooleanField(default=False)
     thc_estimado = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True, help_text='Porcentaje estimado de THC')
     cbd_estimado = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True, help_text='Porcentaje estimado de CBD')
     fecha_germinacion = models.DateField(null=True, blank=True)
@@ -134,3 +155,10 @@ class Planta(models.Model):
 
     def get_absolute_url(self):
         return reverse('gestion_cultivo:detalle_planta', args=[str(self.id)])
+
+    def save(self, *args, **kwargs):
+        if self.tipo_planta == 'semilla' and self.semilla:
+            # Reducir la cantidad de semillas disponibles
+            self.semilla.cantidad_disponible -= 1
+            self.semilla.save()
+        super().save(*args, **kwargs)

@@ -1,0 +1,53 @@
+{% extends "gestion_cultivo/base.html" %}
+
+{% block title %}Plantas Madre{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'gestion_cultivo:index' %}">Inicio</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Plantas Madre</li>
+        </ol>
+    </nav>
+
+    <h1 class="mb-4">Plantas Madre</h1>
+
+    {% if plantas_madre %}
+        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+            {% for planta in plantas_madre %}
+                <div class="col">
+                    <div class="card h-100">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">{{ planta.nombre_id }}</h5>
+                        </div>
+                        <div class="card-body">
+                            <p class="card-text">
+                                <strong>Etapa:</strong> {{ planta.get_etapa_actual_display }}<br>
+                                <strong>Área:</strong> {{ planta.area.nombre }}<br>
+                                <strong>Sala:</strong> {{ planta.area.sala.nombre }}<br>
+                                {% if planta.thc_estimado %}
+                                    <strong>THC Estimado:</strong> {{ planta.thc_estimado }}%<br>
+                                {% endif %}
+                                {% if planta.cbd_estimado %}
+                                    <strong>CBD Estimado:</strong> {{ planta.cbd_estimado }}%<br>
+                                {% endif %}
+                                <strong>Fecha de Germinación:</strong> {{ planta.fecha_germinacion|default:"No especificada" }}
+                            </p>
+                            <div class="mt-3">
+                                <a href="{% url 'gestion_cultivo:detalle_planta' planta.id %}" class="btn btn-primary">Ver Detalles</a>
+                                <a href="{% url 'gestion_cultivo:editar_planta' planta.id %}" class="btn btn-warning">Editar</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="alert alert-info">
+            <h4 class="alert-heading">No hay plantas madre registradas</h4>
+            <p>Para registrar una planta como madre, crea una nueva planta y marca la opción "Es Planta Madre" durante su creación.</p>
+        </div>
+    {% endif %}
+</div>
+{% endblock %} 

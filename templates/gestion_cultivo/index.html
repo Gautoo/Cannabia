@@ -1,0 +1,66 @@
+{% extends "gestion_cultivo/base.html" %}
+
+{% block title %}Mi Cultivo - Inicio{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <h1 class="mb-4">Mi Cultivo</h1>
+
+    <div class="row g-4">
+        <!-- Salas de Cultivo -->
+        <div class="col-md-6">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Salas de Cultivo</h5>
+                </div>
+                <div class="card-body">
+                    <p class="card-text">Gestiona tus salas de cultivo, áreas y plantas.</p>
+                    <a href="{% url 'gestion_cultivo:lista_salas' %}" class="btn btn-primary">Ver Salas</a>
+                    <a href="{% url 'gestion_cultivo:crear_sala' %}" class="btn btn-success">Nueva Sala</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Semillas -->
+        <div class="col-md-6">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Semillas</h5>
+                </div>
+                <div class="card-body">
+                    <p class="card-text">Gestiona tu stock de semillas y genéticas.</p>
+                    <a href="{% url 'gestion_cultivo:lista_semillas' %}" class="btn btn-primary">Ver Semillas</a>
+                    <a href="{% url 'gestion_cultivo:crear_semilla' %}" class="btn btn-success">Nueva Semilla</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Genéticas -->
+        <div class="col-md-6">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Genéticas</h5>
+                </div>
+                <div class="card-body">
+                    <p class="card-text">Gestiona tu catálogo de genéticas.</p>
+                    <a href="{% url 'gestion_cultivo:lista_geneticas' %}" class="btn btn-primary">Ver Genéticas</a>
+                    <a href="{% url 'gestion_cultivo:crear_genetica' %}" class="btn btn-success">Nueva Genética</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Plantas Madre -->
+        <div class="col-md-6">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Plantas Madre</h5>
+                </div>
+                <div class="card-body">
+                    <p class="card-text">Gestiona tus plantas madre para esquejes.</p>
+                    <a href="{% url 'gestion_cultivo:lista_plantas_madre' %}" class="btn btn-primary">Ver Plantas Madre</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

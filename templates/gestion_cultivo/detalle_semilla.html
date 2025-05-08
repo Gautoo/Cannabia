@@ -1,0 +1,98 @@
+{% extends "gestion_cultivo/base.html" %}
+
+{% block title %}{{ semilla.nombre }}{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'gestion_cultivo:lista_semillas' %}">Semillas</a></li>
+            <li class="breadcrumb-item active" aria-current="page">{{ semilla.nombre }}</li>
+        </ol>
+    </nav>
+
+    <div class="card mb-4">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h5 class="card-title mb-0">Información de la Semilla</h5>
+            <div class="btn-group">
+                <a href="{% url 'gestion_cultivo:editar_semilla' semilla.id %}" class="btn btn-sm btn-outline-primary">
+                    <i class="fas fa-edit"></i> Editar
+                </a>
+                <a href="{% url 'gestion_cultivo:eliminar_semilla' semilla.id %}" class="btn btn-sm btn-outline-danger">
+                    <i class="fas fa-trash"></i> Eliminar
+                </a>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <p><strong>Nombre:</strong> {{ semilla.nombre }}</p>
+                    <p><strong>Cantidad Disponible:</strong> {{ semilla.cantidad_disponible }}</p>
+                    {% if semilla.fecha_compra %}
+                        <p><strong>Fecha de Compra:</strong> {{ semilla.fecha_compra|date:"d/m/Y" }}</p>
+                    {% endif %}
+                </div>
+                <div class="col-md-6">
+                    <p><strong>Fecha de Registro:</strong> {{ semilla.fecha_creacion|date:"d/m/Y H:i" }}</p>
+                    {% if semilla.descripcion %}
+                        <p><strong>Descripción:</strong><br>{{ semilla.descripcion }}</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <h5 class="card-title mb-0">Plantas Cultivadas</h5>
+        </div>
+        <div class="card-body">
+            {% if plantas %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Nombre/ID</th>
+                                <th>Etapa</th>
+                                <th>Fecha de Germinación</th>
+                                <th>Estado</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for planta in plantas %}
+                                <tr>
+                                    <td>{{ planta.nombre_id }}</td>
+                                    <td>{{ planta.get_etapa_actual_display }}</td>
+                                    <td>{{ planta.fecha_germinacion|date:"d/m/Y"|default:"-" }}</td>
+                                    <td>
+                                        {% if planta.activa %}
+                                            <span class="badge bg-success">Activa</span>
+                                        {% else %}
+                                            <span class="badge bg-secondary">Inactiva</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <div class="btn-group">
+                                            <a href="{% url 'gestion_cultivo:detalle_planta' planta.id %}" class="btn btn-sm btn-outline-primary">
+                                                <i class="fas fa-eye"></i>
+                                            </a>
+                                            <a href="{% url 'gestion_cultivo:editar_planta' planta.id %}" class="btn btn-sm btn-outline-secondary">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="alert alert-info">
+                    No hay plantas cultivadas con esta semilla.
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %} 
