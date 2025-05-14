@@ -1,6 +1,10 @@
 # gestion_cultivo/admin.py
 from django.contrib import admin
-from .models import Sala, AreaCultivo, Planta, Genetica, Semilla, Fertilizante, Base, Lampara, Maceta, Aditivo, Banco, Terpeno, Caracteristica
+from .models import (
+    Sala, AreaCultivo, Planta, Genetica, Semilla, Fertilizante,
+    Banco, Terpeno, Caracteristica, Contenedor, Maquinaria, 
+    Stock, PresentacionFertilizante
+)
 
 # Clases de Administración (Opcional pero recomendado para personalizar el admin)
 class AreaCultivoInline(admin.StackedInline): # O admin.TabularInline para vista más compacta
@@ -13,8 +17,8 @@ class PlantaInline(admin.StackedInline):
 
 @admin.register(Sala)
 class SalaAdmin(admin.ModelAdmin):
-    list_display = ('nombre', 'usuario', 'tipo_iluminacion', 'temperatura_objetivo', 'humedad_objetivo')
-    list_filter = ('tipo_iluminacion', 'usuario')
+    list_display = ('nombre', 'tipo_iluminacion', 'temperatura_objetivo', 'humedad_objetivo')
+    list_filter = ('tipo_iluminacion',)
     search_fields = ('nombre', 'descripcion')
 
 @admin.register(AreaCultivo)
@@ -25,9 +29,9 @@ class AreaCultivoAdmin(admin.ModelAdmin):
 
 @admin.register(Planta)
 class PlantaAdmin(admin.ModelAdmin):
-    list_display = ('nombre_id', 'tipo_planta', 'etapa_actual', 'area', 'activa')
-    list_filter = ('tipo_planta', 'etapa_actual', 'area', 'activa')
-    search_fields = ('nombre_id',)
+    list_display = ('nombre_id', 'tipo_planta', 'etapa_actual', 'activa', 'es_madre')
+    list_filter = ('tipo_planta', 'etapa_actual', 'activa', 'es_madre')
+    search_fields = ('nombre_id', 'descripcion')
 
 @admin.register(Genetica)
 class GeneticaAdmin(admin.ModelAdmin):
@@ -37,51 +41,52 @@ class GeneticaAdmin(admin.ModelAdmin):
 
 @admin.register(Semilla)
 class SemillaAdmin(admin.ModelAdmin):
-    list_display = ('nombre', 'banco', 'porcentaje_thc', 'porcentaje_cbd', 'cantidad')
-    list_filter = ('banco',)
-    search_fields = ('nombre', 'descripcion')
+    list_display = ('nombre', 'banco', 'variedad', 'thc', 'cbd', 'fecha_compra')
+    list_filter = ('banco', 'variedad', 'fecha_compra')
+    search_fields = ('nombre', 'variedad', 'banco__nombre')
+    date_hierarchy = 'fecha_compra'
 
 @admin.register(Fertilizante)
 class FertilizanteAdmin(admin.ModelAdmin):
-    list_display = ('nombre', 'marca', 'tipo', 'npk', 'cantidad')
-    list_filter = ('marca', 'tipo')
-    search_fields = ('nombre', 'descripcion')
-
-@admin.register(Base)
-class BaseAdmin(admin.ModelAdmin):
-    list_display = ('nombre', 'marca', 'tipo', 'cantidad')
-    list_filter = ('marca', 'tipo')
-    search_fields = ('nombre', 'descripcion')
-
-@admin.register(Lampara)
-class LamparaAdmin(admin.ModelAdmin):
-    list_display = ('nombre', 'potencia', 'tipo', 'marca', 'cantidad')
-    list_filter = ('tipo', 'marca')
-    search_fields = ('nombre', 'descripcion')
-
-@admin.register(Maceta)
-class MacetaAdmin(admin.ModelAdmin):
-    list_display = ('nombre', 'capacidad', 'material', 'cantidad')
-    list_filter = ('material',)
-    search_fields = ('nombre', 'descripcion')
-
-@admin.register(Aditivo)
-class AditivoAdmin(admin.ModelAdmin):
-    list_display = ('nombre', 'marca', 'tipo', 'cantidad')
-    list_filter = ('marca', 'tipo')
-    search_fields = ('nombre', 'descripcion')
+    list_display = ('nombre', 'marca', 'tipo', 'etapa_uso', 'precio')
+    list_filter = ('tipo', 'etapa_uso', 'medio_compatible')
+    search_fields = ('nombre', 'marca')
 
 @admin.register(Banco)
 class BancoAdmin(admin.ModelAdmin):
-    list_display = ('nombre',)
+    list_display = ('nombre', 'fecha_creacion')
     search_fields = ('nombre', 'descripcion')
 
 @admin.register(Terpeno)
 class TerpenoAdmin(admin.ModelAdmin):
-    list_display = ('nombre',)
+    list_display = ('nombre', 'fecha_creacion')
     search_fields = ('nombre', 'descripcion')
 
 @admin.register(Caracteristica)
 class CaracteristicaAdmin(admin.ModelAdmin):
-    list_display = ('nombre',)
+    list_display = ('nombre', 'fecha_creacion')
     search_fields = ('nombre', 'descripcion')
+
+@admin.register(Contenedor)
+class ContenedorAdmin(admin.ModelAdmin):
+    list_display = ('nombre', 'tipo', 'capacidad', 'precio')
+    list_filter = ('tipo', 'material')
+    search_fields = ('nombre', 'descripcion')
+
+@admin.register(Maquinaria)
+class MaquinariaAdmin(admin.ModelAdmin):
+    list_display = ('nombre', 'tipo', 'marca', 'modelo', 'precio')
+    list_filter = ('tipo', 'marca')
+    search_fields = ('nombre', 'marca', 'modelo')
+
+@admin.register(Stock)
+class StockAdmin(admin.ModelAdmin):
+    list_display = ('tipo_producto', 'cantidad', 'fecha_compra', 'precio_compra')
+    list_filter = ('tipo_producto', 'fecha_compra')
+    search_fields = ('tipo_producto', 'proveedor')
+
+@admin.register(PresentacionFertilizante)
+class PresentacionFertilizanteAdmin(admin.ModelAdmin):
+    list_display = ('fertilizante', 'tamano', 'precio')
+    list_filter = ('fertilizante',)
+    search_fields = ('fertilizante__nombre', 'tamano')

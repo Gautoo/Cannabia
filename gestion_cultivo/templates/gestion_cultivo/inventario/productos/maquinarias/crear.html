@@ -1,6 +1,6 @@
 {% extends 'gestion_cultivo/base.html' %}
 
-{% block title %}Nueva Semilla - Mi Cultivo App{% endblock %}
+{% block title %}Nueva Maquinaria - Mi Cultivo App{% endblock %}
 
 {% block content %}
 <div class="container-fluid">
@@ -8,7 +8,7 @@
         <div class="col-12">
             <div class="card">
                 <div class="card-header">
-                    <h3 class="card-title">Nueva Semilla</h3>
+                    <h3 class="card-title">Nueva Maquinaria</h3>
                 </div>
                 <div class="card-body">
                     <form method="post">
@@ -23,21 +23,11 @@
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="form-group mb-3">
-                                    <label for="{{ form.nombre.id_for_label }}">Nombre:</label>
+                                    <label for="{{ form.nombre.id_for_label }}">Nombre / Modelo:</label>
                                     {{ form.nombre }}
                                     {% if form.nombre.errors %}
                                     <div class="invalid-feedback d-block">
                                         {{ form.nombre.errors }}
-                                    </div>
-                                    {% endif %}
-                                </div>
-                                
-                                <div class="form-group mb-3">
-                                    <label for="{{ form.banco.id_for_label }}">Banco:</label>
-                                    {{ form.banco }}
-                                    {% if form.banco.errors %}
-                                    <div class="invalid-feedback d-block">
-                                        {{ form.banco.errors }}
                                     </div>
                                     {% endif %}
                                 </div>
@@ -53,21 +43,21 @@
                                 </div>
                                 
                                 <div class="form-group mb-3">
-                                    <label for="{{ form.padres.id_for_label }}">Padres:</label>
-                                    {{ form.padres }}
-                                    {% if form.padres.errors %}
+                                    <label for="{{ form.marca.id_for_label }}">Marca:</label>
+                                    {{ form.marca }}
+                                    {% if form.marca.errors %}
                                     <div class="invalid-feedback d-block">
-                                        {{ form.padres.errors }}
+                                        {{ form.marca.errors }}
                                     </div>
                                     {% endif %}
                                 </div>
                                 
                                 <div class="form-group mb-3">
-                                    <label for="{{ form.tamano_blister.id_for_label }}">Tamaño del Blister:</label>
-                                    {{ form.tamano_blister }}
-                                    {% if form.tamano_blister.errors %}
+                                    <label for="{{ form.modelo.id_for_label }}">Modelo:</label>
+                                    {{ form.modelo }}
+                                    {% if form.modelo.errors %}
                                     <div class="invalid-feedback d-block">
-                                        {{ form.tamano_blister.errors }}
+                                        {{ form.modelo.errors }}
                                     </div>
                                     {% endif %}
                                 </div>
@@ -75,41 +65,41 @@
                             
                             <div class="col-md-6">
                                 <div class="form-group mb-3">
-                                    <label for="{{ form.ciclo.id_for_label }}">Ciclo:</label>
-                                    {{ form.ciclo }}
-                                    {% if form.ciclo.errors %}
+                                    <label for="{{ form.potencia.id_for_label }}">Potencia / Consumo:</label>
+                                    {{ form.potencia }}
+                                    {% if form.potencia.errors %}
                                     <div class="invalid-feedback d-block">
-                                        {{ form.ciclo.errors }}
+                                        {{ form.potencia.errors }}
                                     </div>
                                     {% endif %}
                                 </div>
                                 
                                 <div class="form-group mb-3">
-                                    <label for="{{ form.porcentaje_thc.id_for_label }}">Porcentaje THC:</label>
-                                    {{ form.porcentaje_thc }}
-                                    {% if form.porcentaje_thc.errors %}
+                                    <label for="{{ form.voltaje.id_for_label }}">Voltaje:</label>
+                                    {{ form.voltaje }}
+                                    {% if form.voltaje.errors %}
                                     <div class="invalid-feedback d-block">
-                                        {{ form.porcentaje_thc.errors }}
+                                        {{ form.voltaje.errors }}
                                     </div>
                                     {% endif %}
                                 </div>
                                 
                                 <div class="form-group mb-3">
-                                    <label for="{{ form.porcentaje_cbd.id_for_label }}">Porcentaje CBD:</label>
-                                    {{ form.porcentaje_cbd }}
-                                    {% if form.porcentaje_cbd.errors %}
+                                    <label for="{{ form.compatibilidad.id_for_label }}">Compatibilidad / Medio:</label>
+                                    {{ form.compatibilidad }}
+                                    {% if form.compatibilidad.errors %}
                                     <div class="invalid-feedback d-block">
-                                        {{ form.porcentaje_cbd.errors }}
+                                        {{ form.compatibilidad.errors }}
                                     </div>
                                     {% endif %}
                                 </div>
                                 
                                 <div class="form-group mb-3">
-                                    <label for="{{ form.terpenos.id_for_label }}">Terpenos:</label>
-                                    {{ form.terpenos }}
-                                    {% if form.terpenos.errors %}
+                                    <label for="{{ form.dimensiones.id_for_label }}">Dimensiones:</label>
+                                    {{ form.dimensiones }}
+                                    {% if form.dimensiones.errors %}
                                     <div class="invalid-feedback d-block">
-                                        {{ form.terpenos.errors }}
+                                        {{ form.dimensiones.errors }}
                                     </div>
                                     {% endif %}
                                 </div>
@@ -126,6 +116,16 @@
                             </div>
                             
                             <div class="col-12">
+                                <div class="form-group mb-3">
+                                    <label for="{{ form.accesorios.id_for_label }}">Accesorios Incluidos:</label>
+                                    {{ form.accesorios }}
+                                    {% if form.accesorios.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {{ form.accesorios.errors }}
+                                    </div>
+                                    {% endif %}
+                                </div>
+                                
                                 <div class="form-group mb-3">
                                     <label for="{{ form.observaciones.id_for_label }}">Observaciones:</label>
                                     {{ form.observaciones }}

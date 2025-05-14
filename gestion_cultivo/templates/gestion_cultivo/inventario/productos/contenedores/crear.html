@@ -1,6 +1,6 @@
 {% extends 'gestion_cultivo/base.html' %}
 
-{% block title %}Nueva Semilla - Mi Cultivo App{% endblock %}
+{% block title %}Nuevo Contenedor - Mi Cultivo App{% endblock %}
 
 {% block content %}
 <div class="container-fluid">
@@ -8,7 +8,7 @@
         <div class="col-12">
             <div class="card">
                 <div class="card-header">
-                    <h3 class="card-title">Nueva Semilla</h3>
+                    <h3 class="card-title">Nuevo Contenedor</h3>
                 </div>
                 <div class="card-body">
                     <form method="post">
@@ -33,16 +33,6 @@
                                 </div>
                                 
                                 <div class="form-group mb-3">
-                                    <label for="{{ form.banco.id_for_label }}">Banco:</label>
-                                    {{ form.banco }}
-                                    {% if form.banco.errors %}
-                                    <div class="invalid-feedback d-block">
-                                        {{ form.banco.errors }}
-                                    </div>
-                                    {% endif %}
-                                </div>
-                                
-                                <div class="form-group mb-3">
                                     <label for="{{ form.tipo.id_for_label }}">Tipo:</label>
                                     {{ form.tipo }}
                                     {% if form.tipo.errors %}
@@ -53,21 +43,11 @@
                                 </div>
                                 
                                 <div class="form-group mb-3">
-                                    <label for="{{ form.padres.id_for_label }}">Padres:</label>
-                                    {{ form.padres }}
-                                    {% if form.padres.errors %}
+                                    <label for="{{ form.capacidad.id_for_label }}">Capacidad (L):</label>
+                                    {{ form.capacidad }}
+                                    {% if form.capacidad.errors %}
                                     <div class="invalid-feedback d-block">
-                                        {{ form.padres.errors }}
-                                    </div>
-                                    {% endif %}
-                                </div>
-                                
-                                <div class="form-group mb-3">
-                                    <label for="{{ form.tamano_blister.id_for_label }}">Tamaño del Blister:</label>
-                                    {{ form.tamano_blister }}
-                                    {% if form.tamano_blister.errors %}
-                                    <div class="invalid-feedback d-block">
-                                        {{ form.tamano_blister.errors }}
+                                        {{ form.capacidad.errors }}
                                     </div>
                                     {% endif %}
                                 </div>
@@ -75,41 +55,21 @@
                             
                             <div class="col-md-6">
                                 <div class="form-group mb-3">
-                                    <label for="{{ form.ciclo.id_for_label }}">Ciclo:</label>
-                                    {{ form.ciclo }}
-                                    {% if form.ciclo.errors %}
+                                    <label for="{{ form.color.id_for_label }}">Color:</label>
+                                    {{ form.color }}
+                                    {% if form.color.errors %}
                                     <div class="invalid-feedback d-block">
-                                        {{ form.ciclo.errors }}
+                                        {{ form.color.errors }}
                                     </div>
                                     {% endif %}
                                 </div>
                                 
                                 <div class="form-group mb-3">
-                                    <label for="{{ form.porcentaje_thc.id_for_label }}">Porcentaje THC:</label>
-                                    {{ form.porcentaje_thc }}
-                                    {% if form.porcentaje_thc.errors %}
+                                    <label for="{{ form.material.id_for_label }}">Material:</label>
+                                    {{ form.material }}
+                                    {% if form.material.errors %}
                                     <div class="invalid-feedback d-block">
-                                        {{ form.porcentaje_thc.errors }}
-                                    </div>
-                                    {% endif %}
-                                </div>
-                                
-                                <div class="form-group mb-3">
-                                    <label for="{{ form.porcentaje_cbd.id_for_label }}">Porcentaje CBD:</label>
-                                    {{ form.porcentaje_cbd }}
-                                    {% if form.porcentaje_cbd.errors %}
-                                    <div class="invalid-feedback d-block">
-                                        {{ form.porcentaje_cbd.errors }}
-                                    </div>
-                                    {% endif %}
-                                </div>
-                                
-                                <div class="form-group mb-3">
-                                    <label for="{{ form.terpenos.id_for_label }}">Terpenos:</label>
-                                    {{ form.terpenos }}
-                                    {% if form.terpenos.errors %}
-                                    <div class="invalid-feedback d-block">
-                                        {{ form.terpenos.errors }}
+                                        {{ form.material.errors }}
                                     </div>
                                     {% endif %}
                                 </div>

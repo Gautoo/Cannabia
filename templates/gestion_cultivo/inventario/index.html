@@ -1,0 +1,150 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <div class="flex justify-between items-center mb-6">
+        <h1 class="text-3xl font-bold text-gray-800">Inventario</h1>
+        <a href="{% url 'gestion_cultivo:nuevo_producto' %}" class="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded">
+            Nuevo Producto
+        </a>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <!-- Semillas -->
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <div class="flex items-center justify-between mb-4">
+                <h2 class="text-xl font-semibold text-gray-800">Semillas</h2>
+                <a href="{% url 'gestion_cultivo:crear_semilla' %}" class="text-green-500 hover:text-green-600">
+                    <i class="fas fa-plus"></i>
+                </a>
+            </div>
+            {% if semillas %}
+                <div class="space-y-3">
+                    {% for semilla in semillas %}
+                        <div class="bg-gray-50 rounded p-3">
+                            <div class="flex justify-between items-center">
+                                <div>
+                                    <h3 class="font-medium text-gray-800">{{ semilla.nombre }}</h3>
+                                    <p class="text-sm text-gray-600">{{ semilla.tipo|default:"Tipo no especificado" }}</p>
+                                </div>
+                                <div class="flex space-x-2">
+                                    <a href="{% url 'gestion_cultivo:editar_semilla' semilla.pk %}" class="text-blue-500 hover:text-blue-600">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <a href="{% url 'gestion_cultivo:eliminar_semilla' semilla.pk %}" class="text-red-500 hover:text-red-600">
+                                        <i class="fas fa-trash"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <p class="text-gray-500 text-sm">No hay semillas registradas</p>
+            {% endif %}
+        </div>
+
+        <!-- Fertilizantes -->
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <div class="flex items-center justify-between mb-4">
+                <h2 class="text-xl font-semibold text-gray-800">Fertilizantes</h2>
+                <a href="{% url 'gestion_cultivo:crear_fertilizante' %}" class="text-green-500 hover:text-green-600">
+                    <i class="fas fa-plus"></i>
+                </a>
+            </div>
+            {% if fertilizantes %}
+                <div class="space-y-3">
+                    {% for fertilizante in fertilizantes %}
+                        <div class="bg-gray-50 rounded p-3">
+                            <div class="flex justify-between items-center">
+                                <div>
+                                    <h3 class="font-medium text-gray-800">{{ fertilizante.nombre }}</h3>
+                                    <p class="text-sm text-gray-600">{{ fertilizante.tipo|default:"Tipo no especificado" }}</p>
+                                </div>
+                                <div class="flex space-x-2">
+                                    <a href="{% url 'gestion_cultivo:editar_fertilizante' fertilizante.pk %}" class="text-blue-500 hover:text-blue-600">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <a href="{% url 'gestion_cultivo:eliminar_fertilizante' fertilizante.pk %}" class="text-red-500 hover:text-red-600">
+                                        <i class="fas fa-trash"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <p class="text-gray-500 text-sm">No hay fertilizantes registrados</p>
+            {% endif %}
+        </div>
+
+        <!-- Contenedores -->
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <div class="flex items-center justify-between mb-4">
+                <h2 class="text-xl font-semibold text-gray-800">Contenedores</h2>
+                <a href="{% url 'gestion_cultivo:crear_contenedor' %}" class="text-green-500 hover:text-green-600">
+                    <i class="fas fa-plus"></i>
+                </a>
+            </div>
+            {% if contenedores %}
+                <div class="space-y-3">
+                    {% for contenedor in contenedores %}
+                        <div class="bg-gray-50 rounded p-3">
+                            <div class="flex justify-between items-center">
+                                <div>
+                                    <h3 class="font-medium text-gray-800">{{ contenedor.nombre }}</h3>
+                                    <p class="text-sm text-gray-600">{{ contenedor.tipo|default:"Tipo no especificado" }}</p>
+                                </div>
+                                <div class="flex space-x-2">
+                                    <a href="{% url 'gestion_cultivo:editar_contenedor' contenedor.pk %}" class="text-blue-500 hover:text-blue-600">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <a href="{% url 'gestion_cultivo:eliminar_contenedor' contenedor.pk %}" class="text-red-500 hover:text-red-600">
+                                        <i class="fas fa-trash"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <p class="text-gray-500 text-sm">No hay contenedores registrados</p>
+            {% endif %}
+        </div>
+
+        <!-- Maquinaria -->
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <div class="flex items-center justify-between mb-4">
+                <h2 class="text-xl font-semibold text-gray-800">Maquinaria</h2>
+                <a href="{% url 'gestion_cultivo:crear_maquinaria' %}" class="text-green-500 hover:text-green-600">
+                    <i class="fas fa-plus"></i>
+                </a>
+            </div>
+            {% if maquinaria %}
+                <div class="space-y-3">
+                    {% for item in maquinaria %}
+                        <div class="bg-gray-50 rounded p-3">
+                            <div class="flex justify-between items-center">
+                                <div>
+                                    <h3 class="font-medium text-gray-800">{{ item.nombre }}</h3>
+                                    <p class="text-sm text-gray-600">{{ item.tipo|default:"Tipo no especificado" }}</p>
+                                </div>
+                                <div class="flex space-x-2">
+                                    <a href="{% url 'gestion_cultivo:editar_maquinaria' item.pk %}" class="text-blue-500 hover:text-blue-600">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <a href="{% url 'gestion_cultivo:eliminar_maquinaria' item.pk %}" class="text-red-500 hover:text-red-600">
+                                        <i class="fas fa-trash"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <p class="text-gray-500 text-sm">No hay maquinaria registrada</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %} 

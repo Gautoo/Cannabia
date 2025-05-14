@@ -1,13 +1,13 @@
 {% extends 'gestion_cultivo/base.html' %}
 
-{% block title %}Agregar Nuevo Producto - Mi Cultivo App{% endblock %}
+{% block title %}Nuevo Producto - Mi Cultivo App{% endblock %}
 
 {% block content %}
 <div class="container py-4">
     <div class="row mb-4">
         <div class="col">
-            <h1 class="display-4">Agregar Nuevo Producto</h1>
-            <p class="lead">Selecciona el tipo de producto que deseas agregar</p>
+            <h1 class="display-4">Nuevo Producto</h1>
+            <p class="lead">Selecciona el tipo de producto que deseas crear</p>
         </div>
     </div>
 
@@ -20,7 +20,7 @@
                     <h5 class="card-title">Semillas</h5>
                     <p class="card-text">Registra nuevas semillas con sus características genéticas.</p>
                     <a href="{% url 'gestion_cultivo:crear_semilla' %}" class="btn btn-outline-success">
-                        <i class="fas fa-plus"></i> Agregar Semilla
+                        <i class="fas fa-plus"></i> Nueva Semilla
                     </a>
                 </div>
             </div>
@@ -34,7 +34,7 @@
                     <h5 class="card-title">Fertilizantes</h5>
                     <p class="card-text">Registra nuevos fertilizantes y nutrientes.</p>
                     <a href="{% url 'gestion_cultivo:crear_fertilizante' %}" class="btn btn-outline-primary">
-                        <i class="fas fa-plus"></i> Agregar Fertilizante
+                        <i class="fas fa-plus"></i> Nuevo Fertilizante
                     </a>
                 </div>
             </div>
@@ -48,7 +48,7 @@
                     <h5 class="card-title">Contenedores</h5>
                     <p class="card-text">Registra nuevos contenedores y macetas.</p>
                     <a href="{% url 'gestion_cultivo:crear_contenedor' %}" class="btn btn-outline-info">
-                        <i class="fas fa-plus"></i> Agregar Contenedor
+                        <i class="fas fa-plus"></i> Nuevo Contenedor
                     </a>
                 </div>
             </div>
@@ -62,7 +62,7 @@
                     <h5 class="card-title">Maquinaria</h5>
                     <p class="card-text">Registra nueva maquinaria y equipos.</p>
                     <a href="{% url 'gestion_cultivo:crear_maquinaria' %}" class="btn btn-outline-warning">
-                        <i class="fas fa-plus"></i> Agregar Maquinaria
+                        <i class="fas fa-plus"></i> Nueva Maquinaria
                     </a>
                 </div>
             </div>

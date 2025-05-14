@@ -1,0 +1,298 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Dashboard - Mi Cultivo App{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <!-- Sidebar -->
+        <div class="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse">
+            <div class="position-sticky pt-3">
+                <ul class="nav flex-column">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="{% url 'gestion_cultivo:dashboard' %}">
+                            <i class="fas fa-tachometer-alt"></i> Dashboard
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'gestion_cultivo:lista_salas' %}">
+                            <i class="fas fa-door-open"></i> Salas
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'gestion_cultivo:inventario' %}">
+                            <i class="fas fa-boxes"></i> Inventario
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'gestion_cultivo:configuracion' %}">
+                            <i class="fas fa-cog"></i> Configuración
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Main content -->
+        <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                <h1 class="h2">Dashboard</h1>
+                <div class="btn-toolbar mb-2 mb-md-0">
+                    <div class="btn-group me-2">
+                        <a href="{% url 'gestion_cultivo:crear_sala' %}" class="btn btn-sm btn-outline-primary">
+                            <i class="fas fa-plus"></i> Nueva Sala
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Resumen de Cultivo -->
+            <div class="row mb-4">
+                <div class="col-md-3">
+                    <div class="card bg-primary text-white">
+                        <div class="card-body">
+                            <h5 class="card-title">Salas</h5>
+                            <p class="card-text display-4">{{ salas_count }}</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card bg-success text-white">
+                        <div class="card-body">
+                            <h5 class="card-title">Áreas</h5>
+                            <p class="card-text display-4">{{ areas_count }}</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card bg-info text-white">
+                        <div class="card-body">
+                            <h5 class="card-title">Plantas</h5>
+                            <p class="card-text display-4">{{ plantas_count }}</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card bg-warning text-white">
+                        <div class="card-body">
+                            <h5 class="card-title">Plantas Activas</h5>
+                            <p class="card-text display-4">{{ plantas_activas.count }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Resumen de Inventario -->
+            <div class="row mb-4">
+                <div class="col-md-3">
+                    <div class="card bg-secondary text-white">
+                        <div class="card-body">
+                            <h5 class="card-title">Semillas</h5>
+                            <p class="card-text display-4">{{ semillas_count }}</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card bg-danger text-white">
+                        <div class="card-body">
+                            <h5 class="card-title">Fertilizantes</h5>
+                            <p class="card-text display-4">{{ fertilizantes_count }}</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card bg-dark text-white">
+                        <div class="card-body">
+                            <h5 class="card-title">Contenedores</h5>
+                            <p class="card-text display-4">{{ contenedores_count }}</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card bg-info text-white">
+                        <div class="card-body">
+                            <h5 class="card-title">Maquinaria</h5>
+                            <p class="card-text display-4">{{ maquinaria_count }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <!-- Plantas Activas -->
+                <div class="col-md-6 mb-4">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">Plantas Activas</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>Nombre</th>
+                                            <th>Área</th>
+                                            <th>Estado</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for planta in plantas_activas %}
+                                        <tr>
+                                            <td>{{ planta.nombre }}</td>
+                                            <td>{{ planta.area.nombre }}</td>
+                                            <td>
+                                                <span class="badge bg-success">Activa</span>
+                                            </td>
+                                        </tr>
+                                        {% empty %}
+                                        <tr>
+                                            <td colspan="3" class="text-center">No hay plantas activas</td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tareas Pendientes -->
+                <div class="col-md-6 mb-4">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">Tareas Pendientes</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="list-group">
+                                {% for tarea in tareas_pendientes %}
+                                <div class="list-group-item">
+                                    <div class="d-flex w-100 justify-content-between">
+                                        <h6 class="mb-1">{{ tarea.titulo }}</h6>
+                                        <small>{{ tarea.fecha_vencimiento|date:"d/m/Y" }}</small>
+                                    </div>
+                                    <p class="mb-1">{{ tarea.descripcion }}</p>
+                                    <small class="text-muted">Prioridad: {{ tarea.get_prioridad_display }}</small>
+                                </div>
+                                {% empty %}
+                                <p class="text-center">No hay tareas pendientes</p>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Notas Rápidas -->
+                <div class="col-md-6 mb-4">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">Notas Rápidas</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="list-group">
+                                {% for nota in notas_rapidas %}
+                                <div class="list-group-item">
+                                    <div class="d-flex w-100 justify-content-between">
+                                        <h6 class="mb-1">{{ nota.titulo }}</h6>
+                                        <small>{{ nota.fecha_creacion|date:"d/m/Y" }}</small>
+                                    </div>
+                                    <p class="mb-1">{{ nota.contenido }}</p>
+                                </div>
+                                {% empty %}
+                                <p class="text-center">No hay notas rápidas</p>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Áreas de Cultivo -->
+                <div class="col-md-6 mb-4">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">Áreas de Cultivo</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>Nombre</th>
+                                            <th>Sala</th>
+                                            <th>Plantas</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for area in areas %}
+                                        <tr>
+                                            <td>{{ area.nombre }}</td>
+                                            <td>{{ area.sala.nombre }}</td>
+                                            <td>{{ area.planta_set.count }}</td>
+                                        </tr>
+                                        {% empty %}
+                                        <tr>
+                                            <td colspan="3" class="text-center">No hay áreas de cultivo</td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .sidebar {
+        position: fixed;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        z-index: 100;
+        padding: 48px 0 0;
+        box-shadow: inset -1px 0 0 rgba(0, 0, 0, .1);
+    }
+
+    .sidebar .nav-link {
+        font-weight: 500;
+        color: #333;
+        padding: 0.5rem 1rem;
+    }
+
+    .sidebar .nav-link.active {
+        color: #007bff;
+    }
+
+    .sidebar .nav-link:hover {
+        color: #007bff;
+    }
+
+    .sidebar .nav-link i {
+        margin-right: 0.5rem;
+    }
+
+    .card {
+        box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    }
+
+    .card-header {
+        background-color: #f8f9fa;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.125);
+    }
+
+    .display-4 {
+        font-size: 2.5rem;
+        font-weight: 300;
+        line-height: 1.2;
+    }
+
+    .table th {
+        border-top: none;
+    }
+</style>
+{% endblock %} 

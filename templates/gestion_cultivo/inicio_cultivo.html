@@ -1,0 +1,92 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <div class="flex justify-between items-center mb-6">
+        <h1 class="text-3xl font-bold text-gray-800">Gestión de Cultivo</h1>
+        <a href="{% url 'gestion_cultivo:crear_sala' %}" class="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded">
+            Nueva Sala
+        </a>
+    </div>
+
+    {% if salas %}
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {% for sala in salas %}
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <div class="flex justify-between items-start mb-4">
+                        <h2 class="text-xl font-semibold text-gray-800">{{ sala.nombre }}</h2>
+                        <div class="flex space-x-2">
+                            <a href="{% url 'gestion_cultivo:editar_sala' sala.pk %}" class="text-blue-500 hover:text-blue-600">
+                                <i class="fas fa-edit"></i>
+                            </a>
+                            <a href="{% url 'gestion_cultivo:eliminar_sala' sala.pk %}" class="text-red-500 hover:text-red-600">
+                                <i class="fas fa-trash"></i>
+                            </a>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <p class="text-gray-600">{{ sala.descripcion|default:"Sin descripción" }}</p>
+                    </div>
+                    
+                    <div class="grid grid-cols-2 gap-4 mb-4">
+                        <div>
+                            <p class="text-sm text-gray-500">Iluminación</p>
+                            <p class="font-medium">{{ sala.tipo_iluminacion|default:"No especificada" }}</p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-500">Temperatura</p>
+                            <p class="font-medium">{{ sala.temperatura_objetivo|default:"No especificada" }}°C</p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-500">Humedad</p>
+                            <p class="font-medium">{{ sala.humedad_objetivo|default:"No especificada" }}%</p>
+                        </div>
+                    </div>
+
+                    <div class="mt-6">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-3">Áreas de Cultivo</h3>
+                        {% if sala.areacultivo_set.all %}
+                            <div class="space-y-3">
+                                {% for area in sala.areacultivo_set.all %}
+                                    <div class="bg-gray-50 rounded p-3">
+                                        <div class="flex justify-between items-center">
+                                            <div>
+                                                <h4 class="font-medium text-gray-800">{{ area.nombre }}</h4>
+                                                <p class="text-sm text-gray-600">{{ area.tipo|default:"Tipo no especificado" }}</p>
+                                            </div>
+                                            <div class="flex space-x-2">
+                                                <a href="{% url 'gestion_cultivo:editar_area' area.pk %}" class="text-blue-500 hover:text-blue-600">
+                                                    <i class="fas fa-edit"></i>
+                                                </a>
+                                                <a href="{% url 'gestion_cultivo:eliminar_area' area.pk %}" class="text-red-500 hover:text-red-600">
+                                                    <i class="fas fa-trash"></i>
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            <p class="text-gray-500 text-sm">No hay áreas de cultivo registradas</p>
+                        {% endif %}
+                        
+                        <div class="mt-4">
+                            <a href="{% url 'gestion_cultivo:crear_area' sala.pk %}" class="text-green-500 hover:text-green-600 text-sm font-medium">
+                                <i class="fas fa-plus"></i> Agregar Área
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="bg-white rounded-lg shadow-md p-6 text-center">
+            <p class="text-gray-500">No hay salas registradas</p>
+            <a href="{% url 'gestion_cultivo:crear_sala' %}" class="inline-block mt-4 text-green-500 hover:text-green-600 font-medium">
+                Crear primera sala
+            </a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %} 

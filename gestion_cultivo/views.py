@@ -8,21 +8,24 @@ from django.http import HttpResponseRedirect, JsonResponse
 from django.utils import timezone
 from django.views.decorators.http import require_POST
 from django.core.paginator import Paginator
-from django.db.models import Q
+from django.db.models import Q, Sum
+from django.contrib.auth.forms import UserCreationForm
 
 from .forms import (
-    SalaForm, RegistroUsuarioForm, AreaCultivoForm, PlantaForm, 
-    GeneticaForm, SemillaForm, FertilizanteForm, LamparaForm, 
-    MacetaForm, AditivoForm, BaseForm, BancoForm, TerpenoForm, 
-    CaracteristicaForm, MoverPlantaForm, MoverAreaForm
+    SalaForm, UsuarioForm, AreaCultivoForm, PlantaForm, 
+    SemillaForm, FertilizanteForm, ContenedorForm, MaquinariaForm, StockForm,
+    GeneticaForm, BancoForm, TerpenoForm, CaracteristicaForm,
+    MoverPlantaForm, MoverAreaForm
 )
 from .models import (
     Sala, AreaCultivo, Planta, Genetica, Semilla, Fertilizante,
-    Lampara, Maceta, Aditivo, Base, Banco, Terpeno, Caracteristica
+    Banco, Terpeno, Caracteristica, Contenedor, Maquinaria, Stock, PresentacionFertilizante
 )
 
+@login_required
 def pagina_inicio_cultivo(request):
-    return render(request, 'gestion_cultivo/inicio_cultivo.html')
+    salas = Sala.objects.filter(usuario=request.user)
+    return render(request, 'gestion_cultivo/inicio_cultivo.html', {'salas': salas})
 
 @login_required
 def lista_salas(request):
@@ -33,15 +36,15 @@ def lista_salas(request):
 
 def registro_usuario(request):
     if request.method == 'POST':
-        form = RegistroUsuarioForm(request.POST)
+        form = UserCreationForm(request.POST)
         if form.is_valid():
             user = form.save()
             login(request, user)
-            messages.success(request, '¡Registro exitoso!')
-            return redirect('dashboard')
+            messages.success(request, '¡Registro exitoso! Bienvenido a Mi Cultivo App.')
+            return redirect('gestion_cultivo:dashboard')
     else:
-        form = RegistroUsuarioForm()
-    return render(request, 'gestion_cultivo/usuarios/registro.html', {'form': form})
+        form = UserCreationForm()
+    return render(request, 'registration/registro.html', {'form': form})
 
 @login_required
 def crear_sala(request):
@@ -292,707 +295,314 @@ def eliminar_genetica(request, pk):
         return redirect('gestion_cultivo:lista_geneticas')
     return render(request, 'gestion_cultivo/inventario/productos/geneticas/eliminar.html', {'genetica': genetica})
 
-# Vistas para el CRUD de Semillas
 @login_required
-def lista_semillas(request):
-    semillas = Semilla.objects.all().order_by('nombre')
-    return render(request, 'gestion_cultivo/inventario/productos/semillas/lista.html', {
-        'semillas': semillas
-    })
-
-@login_required
-def crear_semilla(request):
-    if request.method == 'POST':
-        form = SemillaForm(request.POST)
-        if form.is_valid():
-            form.save()
-            messages.success(request, 'Semilla creada exitosamente.')
-            return redirect('gestion_cultivo:lista_semillas')
-    else:
-        form = SemillaForm()
-    return render(request, 'gestion_cultivo/inventario/productos/semillas/crear.html', {
-        'form': form
-    })
-
-@login_required
-def detalle_semilla(request, semilla_id):
-    semilla = get_object_or_404(Semilla, id=semilla_id)
-    return render(request, 'gestion_cultivo/inventario/productos/semillas/detalle.html', {
-        'semilla': semilla
-    })
-
-@login_required
-def editar_semilla(request, semilla_id):
-    semilla = get_object_or_404(Semilla, id=semilla_id)
-    if request.method == 'POST':
-        form = SemillaForm(request.POST, instance=semilla)
-        if form.is_valid():
-            form.save()
-            messages.success(request, 'Semilla actualizada exitosamente.')
-            return redirect('gestion_cultivo:detalle_semilla', semilla_id=semilla.id)
-    else:
-        form = SemillaForm(instance=semilla)
-    return render(request, 'gestion_cultivo/inventario/productos/semillas/editar.html', {
-        'form': form,
-        'semilla': semilla
-    })
-
-@login_required
-def eliminar_semilla(request, semilla_id):
-    semilla = get_object_or_404(Semilla, id=semilla_id)
-    if request.method == 'POST':
-        semilla.delete()
-        messages.success(request, 'Semilla eliminada exitosamente.')
-        return redirect('gestion_cultivo:lista_semillas')
-    return render(request, 'gestion_cultivo/inventario/productos/semillas/eliminar.html', {
-        'semilla': semilla
-    })
-
-def lista_plantas_madre(request):
-    plantas_madre = Planta.objects.filter(es_madre=True, activa=True).order_by('nombre_id')
-    return render(request, 'gestion_cultivo/cultivo/plantas/lista_madre.html', {
-        'plantas_madre': plantas_madre
-    })
-
-@login_required
-def inventario(request):
-    if not request.user.is_authenticated:
-        return redirect('gestion_cultivo:login')
+def dashboard(request):
+    # Contadores para el cultivo
+    salas_count = Sala.objects.filter(usuario=request.user).count()
+    areas_count = AreaCultivo.objects.filter(sala__usuario=request.user).count()
+    plantas_count = Planta.objects.filter(area__sala__usuario=request.user).count()
     
-    # Obtener todos los productos
-    semillas = Semilla.objects.filter(usuario=request.user)
-    fertilizantes = Fertilizante.objects.filter(usuario=request.user)
-    lamparas = Lampara.objects.filter(usuario=request.user)
-    macetas = Maceta.objects.filter(usuario=request.user)
+    # Contadores para el inventario
+    semillas_count = Semilla.objects.count()  # No tiene campo usuario
+    fertilizantes_count = Fertilizante.objects.count()  # No tiene campo usuario
+    contenedores_count = Contenedor.objects.filter(usuario=request.user).count()
+    maquinaria_count = Maquinaria.objects.filter(usuario=request.user).count()
     
-    # Calcular conteos
-    conteos = {
-        'semillas': semillas.count(),
-        'fertilizantes': fertilizantes.count(),
-        'lamparas': lamparas.count(),
-        'macetas': macetas.count(),
-    }
+    # Obtener plantas activas
+    plantas_activas = Planta.objects.filter(
+        area__sala__usuario=request.user,
+        activa=True
+    ).select_related('area', 'area__sala')
+
+    # Obtener áreas de cultivo
+    areas = AreaCultivo.objects.filter(
+        sala__usuario=request.user
+    ).select_related('sala')
+
+    # Obtener salas
+    salas = Sala.objects.filter(usuario=request.user)
     
     context = {
-        'semillas': semillas,
-        'fertilizantes': fertilizantes,
-        'lamparas': lamparas,
-        'macetas': macetas,
-        'conteos': conteos,
+        'salas_count': salas_count,
+        'areas_count': areas_count,
+        'plantas_count': plantas_count,
+        'semillas_count': semillas_count,
+        'fertilizantes_count': fertilizantes_count,
+        'contenedores_count': contenedores_count,
+        'maquinaria_count': maquinaria_count,
+        'plantas_activas': plantas_activas,
+        'areas': areas,
+        'salas': salas,
     }
-    
-    return render(request, 'gestion_cultivo/inventario/index.html', context)
+    return render(request, 'gestion_cultivo/dashboard.html', context)
 
-@login_required
-def agregar_item_inventario(request, tipo):
-    if tipo == 'semilla':
-        return redirect('gestion_cultivo:agregar_semilla')
-    elif tipo == 'fertilizante':
-        return redirect('gestion_cultivo:agregar_fertilizante')
-    elif tipo == 'lampara':
-        return redirect('gestion_cultivo:agregar_lampara')
-    elif tipo == 'maceta':
-        return redirect('gestion_cultivo:agregar_maceta')
-    elif tipo == 'aditivo':
-        return redirect('gestion_cultivo:agregar_aditivo')
-    elif tipo == 'base':
-        return redirect('gestion_cultivo:agregar_base')
-    else:
-        messages.error(request, 'Tipo de item no válido')
-        return redirect('gestion_cultivo:inventario')
-
-@login_required
-def agregar_semilla(request):
-    if request.method == 'POST':
-        form = SemillaForm(request.POST)
-        if form.is_valid():
-            semilla = form.save()
-            messages.success(request, 'Semilla agregada exitosamente.')
-            return redirect('gestion_cultivo:detalle_item_inventario', tipo='semilla', pk=semilla.id)
-    else:
-        form = SemillaForm()
-    return render(request, 'gestion_cultivo/inventario/productos/semillas/crear.html', {'form': form})
-
-@login_required
-def agregar_banco(request):
-    if request.method == 'POST':
-        form = BancoForm(request.POST)
-        if form.is_valid():
-            form.save()
-            return JsonResponse({'status': 'success'})
-        return JsonResponse({'status': 'error', 'errors': form.errors})
-    return render(request, 'gestion_cultivo/inventario/productos/semillas/bancos/crear.html', {'form': BancoForm()})
-
-@login_required
-def agregar_terpeno(request):
-    if request.method == 'POST':
-        form = TerpenoForm(request.POST)
-        if form.is_valid():
-            form.save()
-            return JsonResponse({'status': 'success'})
-        return JsonResponse({'status': 'error', 'errors': form.errors})
-    return render(request, 'gestion_cultivo/inventario/productos/semillas/terpenos/crear.html', {'form': TerpenoForm()})
-
-@login_required
-def agregar_caracteristica(request):
-    if request.method == 'POST':
-        form = CaracteristicaForm(request.POST)
-        if form.is_valid():
-            form.save()
-            return JsonResponse({'status': 'success'})
-        return JsonResponse({'status': 'error', 'errors': form.errors})
-    return render(request, 'gestion_cultivo/inventario/productos/semillas/caracteristicas/crear.html', {'form': CaracteristicaForm()})
-
-@login_required
-def agregar_lampara(request):
-    if request.method == 'POST':
-        form = LamparaForm(request.POST)
-        if form.is_valid():
-            form.save()
-            messages.success(request, 'Lámpara creada exitosamente.')
-            return redirect('gestion_cultivo:lista_lamparas')
-    else:
-        form = LamparaForm()
-    return render(request, 'gestion_cultivo/inventario/productos/lamparas/crear.html', {'form': form})
-
-@login_required
-def agregar_maceta(request):
-    if request.method == 'POST':
-        form = MacetaForm(request.POST)
-        if form.is_valid():
-            form.save()
-            messages.success(request, 'Maceta creada exitosamente.')
-            return redirect('gestion_cultivo:lista_macetas')
-    else:
-        form = MacetaForm()
-    return render(request, 'gestion_cultivo/inventario/productos/macetas/crear.html', {'form': form})
-
-@login_required
-def agregar_fertilizante(request):
-    if request.method == 'POST':
-        form = FertilizanteForm(request.POST)
-        if form.is_valid():
-            form.save()
-            messages.success(request, 'Fertilizante creado exitosamente.')
-            return redirect('gestion_cultivo:lista_fertilizantes')
-    else:
-        form = FertilizanteForm()
-    return render(request, 'gestion_cultivo/inventario/productos/fertilizantes/crear.html', {'form': form})
-
-@login_required
-def agregar_aditivo(request):
-    if request.method == 'POST':
-        form = AditivoForm(request.POST)
-        if form.is_valid():
-            form.save()
-            messages.success(request, 'Aditivo creado exitosamente.')
-            return redirect('gestion_cultivo:lista_aditivos')
-    else:
-        form = AditivoForm()
-    return render(request, 'gestion_cultivo/inventario/productos/para_sustrato/crear.html', {'form': form})
-
-@login_required
-def agregar_base(request):
-    if request.method == 'POST':
-        form = BaseForm(request.POST)
-        if form.is_valid():
-            form.save()
-            messages.success(request, 'Base creada exitosamente.')
-            return redirect('gestion_cultivo:lista_bases')
-    else:
-        form = BaseForm()
-    return render(request, 'gestion_cultivo/inventario/productos/sustratos/crear.html', {'form': form})
-
-@login_required
-def detalle_item_inventario(request, tipo, pk):
-    # Mapeo de tipos a modelos
-    modelos = {
-        'semilla': Semilla,
-        'fertilizante': Fertilizante,
-        'lampara': Lampara,
-        'maceta': Maceta,
-        'aditivo': Aditivo,
-        'base': Base,
-    }
-    
-    if tipo not in modelos:
-        messages.error(request, 'Tipo de item no válido')
-        return redirect('gestion_cultivo:inventario')
-    
-    modelo = modelos[tipo]
-    item = get_object_or_404(modelo, pk=pk)
-    
-    return render(request, f'gestion_cultivo/inventario/productos/{tipo}s/detalle.html', {
-        'item': item,
-        'tipo': tipo
-    })
-
-@login_required
-def editar_item_inventario(request, tipo, pk):
-    # Mapeo de tipos a modelos y formularios
-    modelos = {
-        'semilla': (Semilla, SemillaForm),
-        'fertilizante': (Fertilizante, FertilizanteForm),
-        'lampara': (Lampara, LamparaForm),
-        'maceta': (Maceta, MacetaForm),
-        'aditivo': (Aditivo, AditivoForm),
-        'base': (Base, BaseForm),
-    }
-    
-    if tipo not in modelos:
-        messages.error(request, 'Tipo de item no válido')
-        return redirect('gestion_cultivo:inventario')
-    
-    modelo, formulario = modelos[tipo]
-    item = get_object_or_404(modelo, pk=pk)
-    
-    if request.method == 'POST':
-        form = formulario(request.POST, instance=item)
-        if form.is_valid():
-            form.save()
-            messages.success(request, f'{tipo.capitalize()} actualizado exitosamente.')
-            return redirect('gestion_cultivo:detalle_item_inventario', tipo=tipo, pk=item.id)
-    else:
-        form = formulario(instance=item)
-    
-    return render(request, f'gestion_cultivo/inventario/productos/{tipo}s/editar.html', {
-        'form': form,
-        'item': item,
-        'tipo': tipo
-    })
-
-@login_required
-def eliminar_item_inventario(request, tipo, pk):
-    # Mapeo de tipos a modelos
-    modelos = {
-        'semilla': Semilla,
-        'fertilizante': Fertilizante,
-        'lampara': Lampara,
-        'maceta': Maceta,
-        'aditivo': Aditivo,
-        'base': Base,
-    }
-    
-    if tipo not in modelos:
-        messages.error(request, 'Tipo de item no válido')
-        return redirect('gestion_cultivo:inventario')
-    
-    modelo = modelos[tipo]
-    item = get_object_or_404(modelo, pk=pk)
-    
-    if request.method == 'POST':
-        item.delete()
-        messages.success(request, f'{tipo.capitalize()} eliminado exitosamente.')
-        return redirect('gestion_cultivo:inventario')
-    
-    return render(request, f'gestion_cultivo/inventario/productos/{tipo}s/eliminar.html', {
-        'item': item,
-        'tipo': tipo
-    })
-
-@login_required
-def login_usuario(request):
+def login_view(request):
     if request.method == 'POST':
         username = request.POST.get('username')
         password = request.POST.get('password')
         user = authenticate(request, username=username, password=password)
         if user is not None:
             login(request, user)
-            messages.success(request, '¡Bienvenido!')
-            return redirect('dashboard')
+            return redirect('gestion_cultivo:dashboard')
         else:
             messages.error(request, 'Usuario o contraseña incorrectos')
     return render(request, 'gestion_cultivo/login.html')
 
-def logout_usuario(request):
+@login_required
+def logout_view(request):
     logout(request)
-    messages.info(request, 'Has cerrado sesión')
-    return redirect('login_usuario')
+    return redirect('gestion_cultivo:login')
 
-@login_required
-def dashboard(request):
-    # Obtener conteos
-    salas_count = Sala.objects.filter(usuario=request.user).count()
-    areas_count = AreaCultivo.objects.filter(sala__usuario=request.user).count()
-    plantas_count = Planta.objects.filter(area__sala__usuario=request.user).count()
-    plantas_madre_count = Planta.objects.filter(area__sala__usuario=request.user, es_madre=True).count()
-    
-    # Obtener últimas plantas
-    ultimas_plantas = Planta.objects.filter(
-        area__sala__usuario=request.user
-    ).select_related('area').order_by('-fecha_creacion')[:5]
-    
-    context = {
-        'salas_count': salas_count,
-        'areas_count': areas_count,
-        'plantas_count': plantas_count,
-        'plantas_madre_count': plantas_madre_count,
-        'ultimas_plantas': ultimas_plantas,
-    }
-    
-    return render(request, 'gestion_cultivo/dashboard.html', context)
-
-@login_required
-def cultivo(request):
-    return render(request, 'gestion_cultivo/cultivo.html')
+def registro(request):
+    if request.method == 'POST':
+        form = UsuarioForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            login(request, user)
+            return redirect('gestion_cultivo:dashboard')
+    else:
+        form = UsuarioForm()
+    return render(request, 'gestion_cultivo/registro.html', {'form': form})
 
 @login_required
 def configuracion(request):
-    return render(request, 'gestion_cultivo/configuracion.html')
+    if request.method == 'POST':
+        form = UsuarioForm(request.POST, instance=request.user)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Configuración actualizada correctamente')
+            return redirect('gestion_cultivo:configuracion')
+    else:
+        form = UsuarioForm(instance=request.user)
+    return render(request, 'gestion_cultivo/configuracion.html', {'form': form})
+
+# Vistas de Inventario
+@login_required
+def inventario(request):
+    semillas = Semilla.objects.all()  # No tiene campo usuario
+    fertilizantes = Fertilizante.objects.all()  # No tiene campo usuario
+    contenedores = Contenedor.objects.filter(usuario=request.user)
+    maquinaria = Maquinaria.objects.filter(usuario=request.user)
+    
+    context = {
+        'semillas': semillas,
+        'fertilizantes': fertilizantes,
+        'contenedores': contenedores,
+        'maquinaria': maquinaria,
+    }
+    return render(request, 'gestion_cultivo/inventario/index.html', context)
 
 @login_required
-def lista_plantas(request):
-    plantas = Planta.objects.filter(area__sala__usuario=request.user).order_by('-fecha_creacion')
-    return render(request, 'gestion_cultivo/cultivo/plantas/lista.html', {'plantas': plantas})
+def agregar_stock(request):
+    if request.method == 'POST':
+        form = StockForm(request.user, request.POST)
+        if form.is_valid():
+            stock = form.save(commit=False)
+            stock.usuario = request.user
+            stock.save()
+            messages.success(request, 'Stock agregado correctamente')
+            return redirect('gestion_cultivo:inventario')
+    else:
+        form = StockForm(request.user)
+    return render(request, 'gestion_cultivo/inventario/agregar_stock.html', {'form': form})
 
+@login_required
+def editar_stock(request, pk):
+    stock = get_object_or_404(Stock, pk=pk, usuario=request.user)
+    if request.method == 'POST':
+        form = StockForm(request.user, request.POST, instance=stock)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Stock actualizado correctamente')
+            return redirect('gestion_cultivo:inventario')
+    else:
+        form = StockForm(request.user, instance=stock)
+    return render(request, 'gestion_cultivo/inventario/editar_stock.html', {'form': form})
+
+@login_required
+def nuevo_producto(request):
+    return render(request, 'gestion_cultivo/inventario/nuevo_producto.html')
+
+# Vistas de Semillas
+@login_required
+def lista_semillas(request):
+    semillas = Semilla.objects.all()  # No tiene campo usuario
+    return render(request, 'gestion_cultivo/inventario/semillas/lista.html', {'semillas': semillas})
+
+@login_required
+def crear_semilla(request):
+    if request.method == 'POST':
+        form = SemillaForm(request.POST)
+        if form.is_valid():
+            semilla = form.save()
+            messages.success(request, 'Semilla creada exitosamente')
+            return redirect('gestion_cultivo:lista_semillas')
+    else:
+        form = SemillaForm()
+    return render(request, 'gestion_cultivo/inventario/semillas/crear.html', {'form': form})
+
+@login_required
+def detalle_semilla(request, pk):
+    semilla = get_object_or_404(Semilla, pk=pk)  # No tiene campo usuario
+    return render(request, 'gestion_cultivo/inventario/semillas/detalle.html', {'semilla': semilla})
+
+@login_required
+def editar_semilla(request, pk):
+    semilla = get_object_or_404(Semilla, pk=pk)  # No tiene campo usuario
+    if request.method == 'POST':
+        form = SemillaForm(request.POST, instance=semilla)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Semilla actualizada exitosamente')
+            return redirect('gestion_cultivo:lista_semillas')
+    else:
+        form = SemillaForm(instance=semilla)
+    return render(request, 'gestion_cultivo/inventario/semillas/editar.html', {'form': form, 'semilla': semilla})
+
+@login_required
+def eliminar_semilla(request, pk):
+    semilla = get_object_or_404(Semilla, pk=pk)  # No tiene campo usuario
+    if request.method == 'POST':
+        semilla.delete()
+        messages.success(request, 'Semilla eliminada exitosamente')
+        return redirect('gestion_cultivo:lista_semillas')
+    return render(request, 'gestion_cultivo/inventario/semillas/eliminar.html', {'semilla': semilla})
+
+# Vistas de Fertilizantes
 @login_required
 def lista_fertilizantes(request):
-    fertilizantes = Fertilizante.objects.all()
-    return render(request, 'gestion_cultivo/inventario/productos/fertilizantes/lista.html', {'fertilizantes': fertilizantes})
+    fertilizantes = Fertilizante.objects.all()  # No tiene campo usuario
+    return render(request, 'gestion_cultivo/inventario/fertilizantes/lista.html', {'fertilizantes': fertilizantes})
 
 @login_required
 def crear_fertilizante(request):
     if request.method == 'POST':
         form = FertilizanteForm(request.POST)
         if form.is_valid():
-            form.save()
-            messages.success(request, 'Fertilizante creado exitosamente.')
+            fertilizante = form.save()
+            messages.success(request, 'Fertilizante creado exitosamente')
             return redirect('gestion_cultivo:lista_fertilizantes')
     else:
         form = FertilizanteForm()
-    return render(request, 'gestion_cultivo/inventario/productos/fertilizantes/crear.html', {'form': form})
+    return render(request, 'gestion_cultivo/inventario/fertilizantes/crear.html', {'form': form})
 
 @login_required
-def detalle_fertilizante(request, fertilizante_id):
-    fertilizante = get_object_or_404(Fertilizante, id=fertilizante_id)
-    return render(request, 'gestion_cultivo/inventario/productos/fertilizantes/detalle.html', {'fertilizante': fertilizante})
+def detalle_fertilizante(request, pk):
+    fertilizante = get_object_or_404(Fertilizante, pk=pk)  # No tiene campo usuario
+    return render(request, 'gestion_cultivo/inventario/fertilizantes/detalle.html', {'fertilizante': fertilizante})
 
 @login_required
-def editar_fertilizante(request, fertilizante_id):
-    fertilizante = get_object_or_404(Fertilizante, id=fertilizante_id)
+def editar_fertilizante(request, pk):
+    fertilizante = get_object_or_404(Fertilizante, pk=pk)  # No tiene campo usuario
     if request.method == 'POST':
         form = FertilizanteForm(request.POST, instance=fertilizante)
         if form.is_valid():
             form.save()
             messages.success(request, 'Fertilizante actualizado exitosamente')
-            return redirect('lista_fertilizantes')
+            return redirect('gestion_cultivo:lista_fertilizantes')
     else:
         form = FertilizanteForm(instance=fertilizante)
-    return render(request, 'gestion_cultivo/inventario/productos/fertilizantes/editar.html', {'form': form, 'fertilizante': fertilizante})
+    return render(request, 'gestion_cultivo/inventario/fertilizantes/editar.html', {'form': form, 'fertilizante': fertilizante})
 
 @login_required
-def eliminar_fertilizante(request, fertilizante_id):
-    fertilizante = get_object_or_404(Fertilizante, id=fertilizante_id)
+def eliminar_fertilizante(request, pk):
+    fertilizante = get_object_or_404(Fertilizante, pk=pk)  # No tiene campo usuario
     if request.method == 'POST':
         fertilizante.delete()
         messages.success(request, 'Fertilizante eliminado exitosamente')
-        return redirect('lista_fertilizantes')
-    return render(request, 'gestion_cultivo/inventario/productos/fertilizantes/eliminar.html', {'fertilizante': fertilizante})
+        return redirect('gestion_cultivo:lista_fertilizantes')
+    return render(request, 'gestion_cultivo/inventario/fertilizantes/eliminar.html', {'fertilizante': fertilizante})
+
+# Vistas de Contenedores
+@login_required
+def lista_contenedores(request):
+    contenedores = Contenedor.objects.filter(usuario=request.user)
+    return render(request, 'gestion_cultivo/inventario/contenedores/lista.html', {'contenedores': contenedores})
 
 @login_required
-def lista_lamparas(request):
-    lamparas = Lampara.objects.all()
-    return render(request, 'gestion_cultivo/inventario/productos/lamparas/lista.html', {'lamparas': lamparas})
-
-@login_required
-def crear_lampara(request):
+def crear_contenedor(request):
     if request.method == 'POST':
-        form = LamparaForm(request.POST)
+        form = ContenedorForm(request.POST)
+        if form.is_valid():
+            contenedor = form.save(commit=False)
+            contenedor.usuario = request.user
+            contenedor.save()
+            messages.success(request, 'Contenedor creado exitosamente')
+            return redirect('gestion_cultivo:lista_contenedores')
+    else:
+        form = ContenedorForm()
+    return render(request, 'gestion_cultivo/inventario/contenedores/crear.html', {'form': form})
+
+@login_required
+def detalle_contenedor(request, pk):
+    contenedor = get_object_or_404(Contenedor, pk=pk, usuario=request.user)
+    return render(request, 'gestion_cultivo/inventario/contenedores/detalle.html', {'contenedor': contenedor})
+
+@login_required
+def editar_contenedor(request, pk):
+    contenedor = get_object_or_404(Contenedor, pk=pk, usuario=request.user)
+    if request.method == 'POST':
+        form = ContenedorForm(request.POST, instance=contenedor)
         if form.is_valid():
             form.save()
-            messages.success(request, 'Lámpara creada exitosamente.')
-            return redirect('gestion_cultivo:lista_lamparas')
+            messages.success(request, 'Contenedor actualizado exitosamente')
+            return redirect('gestion_cultivo:lista_contenedores')
     else:
-        form = LamparaForm()
-    return render(request, 'gestion_cultivo/inventario/productos/lamparas/crear.html', {'form': form})
+        form = ContenedorForm(instance=contenedor)
+    return render(request, 'gestion_cultivo/inventario/contenedores/editar.html', {'form': form, 'contenedor': contenedor})
 
 @login_required
-def detalle_lampara(request, lampara_id):
-    lampara = get_object_or_404(Lampara, id=lampara_id)
-    return render(request, 'gestion_cultivo/inventario/productos/lamparas/detalle.html', {'lampara': lampara})
-
-@login_required
-def editar_lampara(request, lampara_id):
-    lampara = get_object_or_404(Lampara, id=lampara_id)
+def eliminar_contenedor(request, pk):
+    contenedor = get_object_or_404(Contenedor, pk=pk, usuario=request.user)
     if request.method == 'POST':
-        form = LamparaForm(request.POST, instance=lampara)
+        contenedor.delete()
+        messages.success(request, 'Contenedor eliminado exitosamente')
+        return redirect('gestion_cultivo:lista_contenedores')
+    return render(request, 'gestion_cultivo/inventario/contenedores/eliminar.html', {'contenedor': contenedor})
+
+# Vistas de Maquinaria
+@login_required
+def lista_maquinaria(request):
+    maquinaria = Maquinaria.objects.filter(usuario=request.user)
+    return render(request, 'gestion_cultivo/inventario/maquinaria/lista.html', {'maquinaria': maquinaria})
+
+@login_required
+def crear_maquinaria(request):
+    if request.method == 'POST':
+        form = MaquinariaForm(request.POST)
+        if form.is_valid():
+            maquinaria = form.save(commit=False)
+            maquinaria.usuario = request.user
+            maquinaria.save()
+            messages.success(request, 'Maquinaria creada exitosamente')
+            return redirect('gestion_cultivo:lista_maquinaria')
+    else:
+        form = MaquinariaForm()
+    return render(request, 'gestion_cultivo/inventario/maquinaria/crear.html', {'form': form})
+
+@login_required
+def detalle_maquinaria(request, pk):
+    maquinaria = get_object_or_404(Maquinaria, pk=pk, usuario=request.user)
+    return render(request, 'gestion_cultivo/inventario/maquinaria/detalle.html', {'maquinaria': maquinaria})
+
+@login_required
+def editar_maquinaria(request, pk):
+    maquinaria = get_object_or_404(Maquinaria, pk=pk, usuario=request.user)
+    if request.method == 'POST':
+        form = MaquinariaForm(request.POST, instance=maquinaria)
         if form.is_valid():
             form.save()
-            messages.success(request, 'Lámpara actualizada exitosamente')
-            return redirect('lista_lamparas')
+            messages.success(request, 'Maquinaria actualizada exitosamente')
+            return redirect('gestion_cultivo:lista_maquinaria')
     else:
-        form = LamparaForm(instance=lampara)
-    return render(request, 'gestion_cultivo/inventario/productos/lamparas/editar.html', {'form': form, 'lampara': lampara})
+        form = MaquinariaForm(instance=maquinaria)
+    return render(request, 'gestion_cultivo/inventario/maquinaria/editar.html', {'form': form, 'maquinaria': maquinaria})
 
 @login_required
-def eliminar_lampara(request, lampara_id):
-    lampara = get_object_or_404(Lampara, id=lampara_id)
+def eliminar_maquinaria(request, pk):
+    maquinaria = get_object_or_404(Maquinaria, pk=pk, usuario=request.user)
     if request.method == 'POST':
-        lampara.delete()
-        messages.success(request, 'Lámpara eliminada exitosamente')
-        return redirect('lista_lamparas')
-    return render(request, 'gestion_cultivo/inventario/productos/lamparas/eliminar.html', {'lampara': lampara})
-
-@login_required
-def lista_macetas(request):
-    macetas = Maceta.objects.all()
-    return render(request, 'gestion_cultivo/inventario/productos/macetas/lista.html', {'macetas': macetas})
-
-@login_required
-def crear_maceta(request):
-    if request.method == 'POST':
-        form = MacetaForm(request.POST)
-        if form.is_valid():
-            form.save()
-            messages.success(request, 'Maceta creada exitosamente.')
-            return redirect('gestion_cultivo:lista_macetas')
-    else:
-        form = MacetaForm()
-    return render(request, 'gestion_cultivo/inventario/productos/macetas/crear.html', {'form': form})
-
-@login_required
-def detalle_maceta(request, maceta_id):
-    maceta = get_object_or_404(Maceta, id=maceta_id)
-    return render(request, 'gestion_cultivo/inventario/productos/macetas/detalle.html', {'maceta': maceta})
-
-@login_required
-def editar_maceta(request, maceta_id):
-    maceta = get_object_or_404(Maceta, id=maceta_id)
-    if request.method == 'POST':
-        form = MacetaForm(request.POST, instance=maceta)
-        if form.is_valid():
-            form.save()
-            messages.success(request, 'Maceta actualizada exitosamente')
-            return redirect('lista_macetas')
-    else:
-        form = MacetaForm(instance=maceta)
-    return render(request, 'gestion_cultivo/inventario/productos/macetas/editar.html', {'form': form, 'maceta': maceta})
-
-@login_required
-def eliminar_maceta(request, maceta_id):
-    maceta = get_object_or_404(Maceta, id=maceta_id)
-    if request.method == 'POST':
-        maceta.delete()
-        messages.success(request, 'Maceta eliminada exitosamente')
-        return redirect('lista_macetas')
-    return render(request, 'gestion_cultivo/inventario/productos/macetas/eliminar.html', {'maceta': maceta})
-
-@login_required
-def lista_aditivos(request):
-    aditivos = Aditivo.objects.all()
-    return render(request, 'gestion_cultivo/inventario/productos/para_sustrato/lista.html', {'aditivos': aditivos})
-
-@login_required
-def crear_aditivo(request):
-    if request.method == 'POST':
-        form = AditivoForm(request.POST)
-        if form.is_valid():
-            form.save()
-            messages.success(request, 'Aditivo creado exitosamente.')
-            return redirect('gestion_cultivo:lista_aditivos')
-    else:
-        form = AditivoForm()
-    return render(request, 'gestion_cultivo/inventario/productos/para_sustrato/crear.html', {'form': form})
-
-@login_required
-def detalle_aditivo(request, aditivo_id):
-    aditivo = get_object_or_404(Aditivo, id=aditivo_id)
-    return render(request, 'gestion_cultivo/inventario/productos/para_sustrato/detalle.html', {'aditivo': aditivo})
-
-@login_required
-def editar_aditivo(request, aditivo_id):
-    aditivo = get_object_or_404(Aditivo, id=aditivo_id)
-    if request.method == 'POST':
-        form = AditivoForm(request.POST, instance=aditivo)
-        if form.is_valid():
-            form.save()
-            messages.success(request, 'Aditivo actualizado exitosamente')
-            return redirect('lista_aditivos')
-    else:
-        form = AditivoForm(instance=aditivo)
-    return render(request, 'gestion_cultivo/inventario/productos/para_sustrato/editar.html', {'form': form, 'aditivo': aditivo})
-
-@login_required
-def eliminar_aditivo(request, aditivo_id):
-    aditivo = get_object_or_404(Aditivo, id=aditivo_id)
-    if request.method == 'POST':
-        aditivo.delete()
-        messages.success(request, 'Aditivo eliminado exitosamente')
-        return redirect('lista_aditivos')
-    return render(request, 'gestion_cultivo/inventario/productos/para_sustrato/eliminar.html', {'aditivo': aditivo})
-
-@login_required
-def lista_bases(request):
-    bases = Base.objects.all()
-    return render(request, 'gestion_cultivo/inventario/productos/sustratos/lista.html', {'bases': bases})
-
-@login_required
-def crear_base(request):
-    if request.method == 'POST':
-        form = BaseForm(request.POST)
-        if form.is_valid():
-            form.save()
-            messages.success(request, 'Base creada exitosamente.')
-            return redirect('gestion_cultivo:lista_bases')
-    else:
-        form = BaseForm()
-    return render(request, 'gestion_cultivo/inventario/productos/sustratos/crear.html', {'form': form})
-
-@login_required
-def detalle_base(request, base_id):
-    base = get_object_or_404(Base, id=base_id)
-    return render(request, 'gestion_cultivo/inventario/productos/sustratos/detalle.html', {'base': base})
-
-@login_required
-def editar_base(request, base_id):
-    base = get_object_or_404(Base, id=base_id)
-    if request.method == 'POST':
-        form = BaseForm(request.POST, instance=base)
-        if form.is_valid():
-            form.save()
-            messages.success(request, 'Base actualizada exitosamente')
-            return redirect('lista_bases')
-    else:
-        form = BaseForm(instance=base)
-    return render(request, 'gestion_cultivo/inventario/productos/sustratos/editar.html', {'form': form, 'base': base})
-
-@login_required
-def eliminar_base(request, base_id):
-    base = get_object_or_404(Base, id=base_id)
-    if request.method == 'POST':
-        base.delete()
-        messages.success(request, 'Base eliminada exitosamente')
-        return redirect('lista_bases')
-    return render(request, 'gestion_cultivo/inventario/productos/sustratos/eliminar.html', {'base': base})
-
-@login_required
-def lista_bancos(request):
-    bancos = Banco.objects.all()
-    return render(request, 'gestion_cultivo/inventario/productos/semillas/bancos/lista.html', {'bancos': bancos})
-
-@login_required
-def crear_banco(request):
-    if request.method == 'POST':
-        form = BancoForm(request.POST)
-        if form.is_valid():
-            form.save()
-            messages.success(request, 'Banco creado exitosamente.')
-            return redirect('gestion_cultivo:lista_bancos')
-    else:
-        form = BancoForm()
-    return render(request, 'gestion_cultivo/inventario/productos/semillas/bancos/crear.html', {'form': form})
-
-@login_required
-def detalle_banco(request, banco_id):
-    banco = get_object_or_404(Banco, id=banco_id)
-    return render(request, 'gestion_cultivo/inventario/productos/semillas/bancos/detalle.html', {'banco': banco})
-
-@login_required
-def editar_banco(request, banco_id):
-    banco = get_object_or_404(Banco, id=banco_id)
-    if request.method == 'POST':
-        form = BancoForm(request.POST, instance=banco)
-        if form.is_valid():
-            form.save()
-            messages.success(request, 'Banco actualizado exitosamente')
-            return redirect('lista_bancos')
-    else:
-        form = BancoForm(instance=banco)
-    return render(request, 'gestion_cultivo/inventario/productos/semillas/bancos/editar.html', {'form': form, 'banco': banco})
-
-@login_required
-def eliminar_banco(request, banco_id):
-    banco = get_object_or_404(Banco, id=banco_id)
-    if request.method == 'POST':
-        banco.delete()
-        messages.success(request, 'Banco eliminado exitosamente')
-        return redirect('lista_bancos')
-    return render(request, 'gestion_cultivo/inventario/productos/semillas/bancos/eliminar.html', {'banco': banco})
-
-@login_required
-def lista_terpenos(request):
-    terpenos = Terpeno.objects.all()
-    return render(request, 'gestion_cultivo/inventario/productos/semillas/terpenos/lista.html', {'terpenos': terpenos})
-
-@login_required
-def crear_terpeno(request):
-    if request.method == 'POST':
-        form = TerpenoForm(request.POST)
-        if form.is_valid():
-            form.save()
-            messages.success(request, 'Terpeno creado exitosamente.')
-            return redirect('gestion_cultivo:lista_terpenos')
-    else:
-        form = TerpenoForm()
-    return render(request, 'gestion_cultivo/inventario/productos/semillas/terpenos/crear.html', {'form': form})
-
-@login_required
-def detalle_terpeno(request, terpeno_id):
-    terpeno = get_object_or_404(Terpeno, id=terpeno_id)
-    return render(request, 'gestion_cultivo/inventario/productos/semillas/terpenos/detalle.html', {'terpeno': terpeno})
-
-@login_required
-def editar_terpeno(request, terpeno_id):
-    terpeno = get_object_or_404(Terpeno, id=terpeno_id)
-    if request.method == 'POST':
-        form = TerpenoForm(request.POST, instance=terpeno)
-        if form.is_valid():
-            form.save()
-            messages.success(request, 'Terpeno actualizado exitosamente')
-            return redirect('lista_terpenos')
-    else:
-        form = TerpenoForm(instance=terpeno)
-    return render(request, 'gestion_cultivo/inventario/productos/semillas/terpenos/editar.html', {'form': form, 'terpeno': terpeno})
-
-@login_required
-def eliminar_terpeno(request, terpeno_id):
-    terpeno = get_object_or_404(Terpeno, id=terpeno_id)
-    if request.method == 'POST':
-        terpeno.delete()
-        messages.success(request, 'Terpeno eliminado exitosamente')
-        return redirect('lista_terpenos')
-    return render(request, 'gestion_cultivo/inventario/productos/semillas/terpenos/eliminar.html', {'terpeno': terpeno})
-
-@login_required
-def lista_caracteristicas(request):
-    caracteristicas = Caracteristica.objects.all()
-    return render(request, 'gestion_cultivo/inventario/productos/semillas/caracteristicas/lista.html', {'caracteristicas': caracteristicas})
-
-@login_required
-def crear_caracteristica(request):
-    if request.method == 'POST':
-        form = CaracteristicaForm(request.POST)
-        if form.is_valid():
-            form.save()
-            messages.success(request, 'Característica creada exitosamente.')
-            return redirect('gestion_cultivo:lista_caracteristicas')
-    else:
-        form = CaracteristicaForm()
-    return render(request, 'gestion_cultivo/inventario/productos/semillas/caracteristicas/crear.html', {'form': form})
-
-@login_required
-def detalle_caracteristica(request, caracteristica_id):
-    caracteristica = get_object_or_404(Caracteristica, id=caracteristica_id)
-    return render(request, 'gestion_cultivo/inventario/productos/semillas/caracteristicas/detalle.html', {'caracteristica': caracteristica})
-
-@login_required
-def editar_caracteristica(request, caracteristica_id):
-    caracteristica = get_object_or_404(Caracteristica, id=caracteristica_id)
-    if request.method == 'POST':
-        form = CaracteristicaForm(request.POST, instance=caracteristica)
-        if form.is_valid():
-            form.save()
-            messages.success(request, 'Característica actualizada exitosamente')
-            return redirect('lista_caracteristicas')
-    else:
-        form = CaracteristicaForm(instance=caracteristica)
-    return render(request, 'gestion_cultivo/inventario/productos/semillas/caracteristicas/editar.html', {'form': form, 'caracteristica': caracteristica})
-
-@login_required
-def eliminar_caracteristica(request, caracteristica_id):
-    caracteristica = get_object_or_404(Caracteristica, id=caracteristica_id)
-    if request.method == 'POST':
-        caracteristica.delete()
-        messages.success(request, 'Característica eliminada exitosamente')
-        return redirect('lista_caracteristicas')
-    return render(request, 'gestion_cultivo/inventario/productos/semillas/caracteristicas/eliminar.html', {'caracteristica': caracteristica})
+        maquinaria.delete()
+        messages.success(request, 'Maquinaria eliminada exitosamente')
+        return redirect('gestion_cultivo:lista_maquinaria')
+    return render(request, 'gestion_cultivo/inventario/maquinaria/eliminar.html', {'maquinaria': maquinaria})
